@@ -1,6 +1,9 @@
 using UnityEditor;
 using UnityEngine;
 using System.IO;
+using System.Collections.Generic;
+using UnityEditorInternal;
+using System;
 
 public class PackageScaffolder : EditorWindow {
 
@@ -18,9 +21,72 @@ public class PackageScaffolder : EditorWindow {
     private bool createDocumentationFolder = false;
     private bool createTestsFolder = false;
 
+    [SerializeField]
+    private List<PackageDependency> dependencies = new List<PackageDependency> { new() { packageName = "com.unity.sentis", version = "2.0.0" } };
+    [SerializeField]
+    private ReorderableList m_DependenciesList;
+
+    private static class Styles {
+        public static readonly GUIContent version = EditorGUIUtility.TrTextContent("Version", "Must follow SemVer (ex: 1.0.0-preview.1).");
+        public static readonly GUIContent package = EditorGUIUtility.TrTextContent("Package name", "Must be lowercase");
+    }
+
+    private SerializedObject serializedObject;
+
+    [Serializable]
+    public class PackageDependency {
+        public string packageName;
+        public string version;
+    }
+
     [MenuItem("Tools/Package Creation Wizard")]
     public static void ShowWindow() {
         GetWindow<PackageScaffolder>("Package Creation Wizard");
+    }
+
+    private void OnEnable() {
+        serializedObject = new SerializedObject(this);
+
+        // Initialize the reorderable list
+        m_DependenciesList = new ReorderableList(serializedObject, serializedObject.FindProperty("dependencies"), true, false, true, true) {
+            drawElementCallback = DrawDependencyListElement,
+            drawHeaderCallback = DrawDependencyHeaderElement,
+            elementHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing
+        };
+    }
+
+    private void DrawDependencyHeaderElement(Rect rect) {
+        var w = rect.width;
+        rect.x += 4;
+        rect.width = w / 3 * 2 - 2;
+        GUI.Label(rect, Styles.package, EditorStyles.label);
+
+        rect.x += w / 3 * 2;
+        rect.width = w / 3 - 4;
+        GUI.Label(rect, Styles.version, EditorStyles.label);
+    }
+
+    private void DrawDependencyListElement(Rect rect, int index, bool isActive, bool isFocused) {
+        var list = m_DependenciesList.serializedProperty;
+        var dependency = list.GetArrayElementAtIndex(index);
+        var packageName = dependency.FindPropertyRelative("packageName");
+        var version = dependency.FindPropertyRelative("version");
+
+        var w = rect.width;
+        rect.x += 4;
+        rect.width = w / 3 * 2 - 2;
+
+        rect.height -= EditorGUIUtility.standardVerticalSpacing;
+        packageName.stringValue = EditorGUI.TextField(rect, packageName.stringValue);
+
+        using (new EditorGUI.DisabledScope(string.IsNullOrWhiteSpace(packageName.stringValue))) {
+            rect.x += w / 3 * 2;
+            rect.width = w / 3 - 4;
+            version.stringValue = EditorGUI.TextField(rect, version.stringValue);
+
+            //if (!string.IsNullOrWhiteSpace(version.stringValue))
+            //    ValidateVersion(packageName.stringValue, version.stringValue, errorMessages, warningMessages);
+        }
     }
 
     private void OnGUI() {
@@ -40,6 +106,12 @@ public class PackageScaffolder : EditorWindow {
         createEditorFolder = EditorGUILayout.Toggle("Create Editor Folder", createEditorFolder);
         createDocumentationFolder = EditorGUILayout.Toggle("Create Documentation Folder", createDocumentationFolder);
         createTestsFolder = EditorGUILayout.Toggle("Create Tests Folder", createTestsFolder);
+
+        // Draw the reorderable list
+        GUILayout.Label("Dependencies (Optional)", EditorStyles.boldLabel);
+        m_DependenciesList.DoLayoutList();
+
+        serializedObject.ApplyModifiedProperties();
 
         if (GUILayout.Button("Create Package")) {
             CreatePackageScaffolding();
@@ -170,7 +242,7 @@ public class PackageScaffolder : EditorWindow {
     private void CreatePackageFiles(string path) {
         // Create package.json manifest file inside the identifier folder
         string packageManifestPath = $"{path}/package.json";
-        File.WriteAllText(packageManifestPath, PackageManifestTemplate.GetContent(productName, identifier, description, companyName, version));
+        File.WriteAllText(packageManifestPath, PackageManifestTemplate.GetContent(productName, identifier, description, companyName, version, dependencies));
 
         // Create README.md file inside the identifier folder
         string readmePath = $"{path}/README.md";
