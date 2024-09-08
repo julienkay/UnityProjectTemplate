@@ -5,24 +5,30 @@ using System.Collections.Generic;
 using UnityEditorInternal;
 using System;
 
-public class PackageScaffolder : EditorWindow {
+public partial class PackageScaffolder : EditorWindow {
 
-    private string companyName = "Doji Technologies";
-    private string productName = "NewPackage";
-    private string identifier = "com.doji.package";
-    private string assemblyName = "Doji.Package";
-    private string description = "A short description for readmes etc";
-    private string author = "Julien Kipp";
-    private string version = "1.0.0";
-    private LicenseTemplate.LicenseType selectedLicense = LicenseTemplate.LicenseType.MIT;
+    internal string companyName = "Doji Technologies";
+    internal string productName = "MyPackage";
+    internal string packageName = "com.doji.package";
+    internal string assemblyName = "Doji.Package";
+    internal string namespaceName = "Doji.AI.PackageNS";
+    internal string description = "A short description for readmes etc";
+    internal string author = "Julien Kipp";
+    internal string version = "1.0.0";
+    internal LicenseType licenseType = LicenseType.MIT;
+
+    internal string targetLocation = "../";
+    internal string rootDirectory { get { return Path.Combine(targetLocation, packageName); } }
+    internal string packageDirectory { get { return Path.Combine(rootDirectory, packageName); } }
+    internal string projectDirectory { get { return Path.Combine(rootDirectory, "projects", productName); } }
 
     // New toggles for Documentation and Tests folders
     private bool createEditorFolder = false;
-    private bool createDocumentationFolder = false;
+    private bool createDocsFolder = true;
     private bool createTestsFolder = false;
 
     [SerializeField]
-    private List<PackageDependency> dependencies = new List<PackageDependency> { new() { packageName = "com.unity.sentis", version = "2.0.0" } };
+    internal List<PackageDependency> dependencies = new List<PackageDependency> { new() { packageName = "com.unity.sentis", version = "2.0.0" } };
     [SerializeField]
     private ReorderableList m_DependenciesList;
 
@@ -94,17 +100,18 @@ public class PackageScaffolder : EditorWindow {
 
         companyName = EditorGUILayout.TextField("Company Name", companyName);
         productName = EditorGUILayout.TextField("Product Name", productName);
-        identifier = EditorGUILayout.TextField("Identifier", identifier);
+        packageName = EditorGUILayout.TextField("Identifier", packageName);
         assemblyName = EditorGUILayout.TextField("Assembly Name", assemblyName);
+        namespaceName = EditorGUILayout.TextField("Namespace", namespaceName);
         description = EditorGUILayout.TextField("Description", description);
         author = EditorGUILayout.TextField("Author", author);
         version = EditorGUILayout.TextField("Version", version);
 
-        selectedLicense = (LicenseTemplate.LicenseType)EditorGUILayout.EnumPopup("License Type", selectedLicense);
+        licenseType = (LicenseType)EditorGUILayout.EnumPopup("License Type", licenseType);
 
         // Add toggles for optional folders
         createEditorFolder = EditorGUILayout.Toggle("Create Editor Folder", createEditorFolder);
-        createDocumentationFolder = EditorGUILayout.Toggle("Create Documentation Folder", createDocumentationFolder);
+        createDocsFolder = EditorGUILayout.Toggle("Create Documentation Folder", createDocsFolder);
         createTestsFolder = EditorGUILayout.Toggle("Create Tests Folder", createTestsFolder);
 
         // Draw the reorderable list
@@ -119,79 +126,73 @@ public class PackageScaffolder : EditorWindow {
     }
 
     private void CreatePackageScaffolding() {
-        // Define the root path for the package using the identifier
-        string rootPath = $"../{identifier}";
-
-        if (Directory.Exists(rootPath)) {
-            Debug.LogError($"The directory {rootPath} already exists!");
+        if (Directory.Exists(rootDirectory)) {
+            Debug.LogError($"The directory {rootDirectory} already exists!");
             return;
         }
 
         // Create the root structure
-        Directory.CreateDirectory(rootPath);
-        Directory.CreateDirectory($"{rootPath}/{identifier}");
-        Directory.CreateDirectory($"{rootPath}/projects");
+        Directory.CreateDirectory(rootDirectory);
+        Directory.CreateDirectory(packageDirectory);
+        Directory.CreateDirectory(projectDirectory);
 
-        // Create the subfolders inside the second 'com.doji.package' (or identifier) folder
-        CreateSubfolders($"{rootPath}/{identifier}");
+        if (createDocsFolder) {
+            CreateDocsFolder(rootDirectory);
+        }
+
+        // Create the subfolders inside the second 'com.company.package' (or identifier) folder
+        CreatePackageFolders();
 
         // Create the project folder structure
-        CreateProjectStructure(rootPath);
+        CreateProjectStructure();
 
         // Create the LICENSE and README.md files
-        CreateRootFiles(rootPath);
+        CreateRootFiles();
 
-        GitUtility.InitializeRepository(rootPath, identifier);
+        GitUtility.InitializeRepository(rootDirectory, packageName);
 
-        Debug.Log($"Package scaffolding created successfully at {rootPath}");
+        Debug.Log($"Package scaffolding created successfully at {rootDirectory}");
     }
 
-    private void CreateSubfolders(string path) {
-        Directory.CreateDirectory($"{path}/Runtime");
-        CreateAsmDef($"{path}/Runtime");
-        CreateAssemblyInfo($"{path}/Runtime");
+    private void CreatePackageFolders() {
+        string runtimePath = Path.Combine(packageDirectory, "Runtime");
+        Directory.CreateDirectory(runtimePath);
+        CreateAsmDef(runtimePath);
+        CreateAssemblyInfo(runtimePath);
 
         // Conditionally create the Editor, Documentation and Tests folders
         if (createEditorFolder) {
-            Directory.CreateDirectory($"{path}/Editor");
-        }
-
-        if (createDocumentationFolder) {
-            Directory.CreateDirectory($"{path}/Documentation");
+            Directory.CreateDirectory(Path.Combine(packageDirectory, "Editor"));
         }
 
         if (createTestsFolder) {
-            Directory.CreateDirectory($"{path}/Tests");
+            Directory.CreateDirectory(Path.Combine(packageDirectory, "Tests"));
         }
 
         // Create the package files inside this path
-        CreatePackageFiles(path);
+        CreatePackageFiles(packageDirectory);
     }
 
-    private void CreateProjectStructure(string rootPath) {
-        string projectPath = $"{rootPath}/projects/{productName}";
-
+    private void CreateProjectStructure() {
         UpdateProjectSettings();
 
-        // Create the Product Name folder inside the projects folder
-        Directory.CreateDirectory(projectPath);
-        Directory.CreateDirectory($"{projectPath}/Assets");
+        Directory.CreateDirectory(Path.Combine(projectDirectory, "Assets"));
 
         // Copy existing Unity project folders and .gitignore to the project folder
-        CopyDirectory("Packages", $"{projectPath}/Packages");
-        CopyDirectory("ProjectSettings", $"{projectPath}/ProjectSettings");
+        CopyDirectory("Packages", Path.Combine(projectDirectory, "Packages"));
+        CopyDirectory("ProjectSettings", Path.Combine(projectDirectory, "ProjectSettings"));
 
         RevertProjectSettings();
 
         // Copy the .gitignore file
         string gitignorePath = Path.Combine(Directory.GetCurrentDirectory(), ".gitignore");
         if (File.Exists(gitignorePath)) {
-            File.Copy(gitignorePath, $"{projectPath}/.gitignore", overwrite: true);
+            File.Copy(gitignorePath, Path.Combine(projectDirectory, ".gitignore"), overwrite: true);
         }
 
         // add the package to project manifest via local (relative) path
-        string projectManifestPath = $"{projectPath}/Packages/manifest.json";
-        PackageManagerHelper.InsertPackageLine(projectManifestPath, identifier);
+        string projectManifestPath = Path.Combine(projectDirectory, "Packages", "manifest.json");
+        PackageManagerHelper.InsertPackageLine(projectManifestPath, packageName);
     }
 
     private static string originalCompanyName;
@@ -210,7 +211,7 @@ public class PackageScaffolder : EditorWindow {
         PlayerSettings.companyName = companyName;
         PlayerSettings.productName = productName;
         PlayerSettings.bundleVersion = version;
-        PlayerSettings.applicationIdentifier = identifier;
+        PlayerSettings.applicationIdentifier = packageName;
 
         // Refresh the editor to apply changes
         AssetDatabase.SaveAssets();
@@ -229,27 +230,27 @@ public class PackageScaffolder : EditorWindow {
         AssetDatabase.Refresh();
     }
 
-    private void CreateRootFiles(string rootPath) {
+    private void CreateRootFiles() {
         // Create a LICENSE file in the root
-        string licensePath = $"{rootPath}/LICENSE";
-        File.WriteAllText(licensePath, selectedLicense.GetContent(author));
+        string licensePath = Path.Combine(rootDirectory, "LICENSE");
+        File.WriteAllText(licensePath, GetLicense());
 
         // Create a README.md file in the root
-        string readmePath = $"{rootPath}/README.md";
-        File.WriteAllText(readmePath, ReadmeTemplate.GetRepositoryReadme(productName, identifier, description));
+        string readmePath = Path.Combine(rootDirectory, "README.md");
+        File.WriteAllText(readmePath, GetRepositoryReadme());
     }
 
     private void CreatePackageFiles(string path) {
         // Create package.json manifest file inside the identifier folder
-        string packageManifestPath = $"{path}/package.json";
-        File.WriteAllText(packageManifestPath, PackageManifestTemplate.GetContent(productName, identifier, description, companyName, version, dependencies));
+        string packageManifestPath = Path.Combine(path, "package.json");
+        File.WriteAllText(packageManifestPath, GetPackageManifest());
 
         // Create README.md file inside the identifier folder
-        string readmePath = $"{path}/README.md";
-        File.WriteAllText(readmePath, ReadmeTemplate.GetPackageReadme(identifier, description));
+        string readmePath = Path.Combine(path, "README.md");
+        File.WriteAllText(readmePath, GetPackageReadme());
 
         // Create CHANGELOG.md file inside the identifier folder
-        string changelogPath = $"{path}/CHANGELOG.md";
+        string changelogPath = Path.Combine(path, "CHANGELOG.md");
         File.WriteAllText(changelogPath, ChangelogTemplate.GetContent(version));
     }
 
@@ -270,7 +271,7 @@ public class PackageScaffolder : EditorWindow {
             File.Copy(file, destFile, true);
         }
 
-        // Copy all subdirectories
+        // Copy all subdirectories recursively
         foreach (string subDir in Directory.GetDirectories(sourceDir)) {
             string destSubDir = Path.Combine(destinationDir, Path.GetFileName(subDir));
             CopyDirectory(subDir, destSubDir);
@@ -279,13 +280,49 @@ public class PackageScaffolder : EditorWindow {
 
     // Utility method to create .asmdef files
     private void CreateAsmDef(string path) {
-        string asmDefPath = $"{path}/{assemblyName}.asmdef";
+        string asmDefPath = Path.Combine(path, $"{assemblyName}.asmdef");
         File.WriteAllText(asmDefPath, AsmDefTemplate.GetContent(assemblyName));
     }
 
     // Utility method to create AssemblyInfo.cs files
     private void CreateAssemblyInfo(string path) {
-        string asmDefPath = $"{path}/AssemblyInfo.cs";
-        File.WriteAllText(asmDefPath, AssemblyInfoTemplate.GetContent(assemblyName, companyName, author, description, version));
+        string asmDefPath = Path.Combine(path, "AssemblyInfo.cs");
+        File.WriteAllText(asmDefPath, GetAssemblyInfo());
+    }
+
+    private void CreateDocsFolder(string path) {
+        path = Path.Combine(path, "docs");
+        Directory.CreateDirectory(path);
+        CreateDocfxFolders(path);
+        CreateDocfxFiles(path);
+    }
+
+    private void CreateDocfxFolders(string path) {
+        // Copy docs folder potentially including some standard files
+        CopyDirectory("docs", Path.Combine(path));
+    }
+
+    private void CreateDocfxFiles(string path) {
+        // Create docfx.json in the docs folder
+        string docfxConfigPath = $"{path}/docfx.json";
+        File.WriteAllText(docfxConfigPath, GetDocfxJson());
+
+        // Create docfx-pdf.json in the docs folder
+        string docfxPdfConfigPath = $"{path}/docfx-pdf.json";
+        File.WriteAllText(docfxPdfConfigPath, GetDocfxPdfJson());
+
+        // Create filterConfig.yml in the docs folder
+        string filterConfigPath = $"{path}/filterConfig.yml";
+        File.WriteAllText(filterConfigPath, GetFilterConfig());
+
+        // Create root index.md in the docs folder
+        string indexPath = $"{path}/index.md";
+        File.WriteAllText(indexPath, GetIndexMD());
+
+        string tocPath = $"{path}/toc.yml";
+        File.WriteAllText(tocPath, GetRootToc());
+
+        string manualTocPath = $"{path}/manual/toc.yml";
+        File.WriteAllText(manualTocPath, GetManualToc());
     }
 }

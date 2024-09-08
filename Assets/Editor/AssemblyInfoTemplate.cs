@@ -1,7 +1,7 @@
 using System;
 
-public static class AssemblyInfoTemplate {
-    public static string GetContent(string assemblyName, string companyName, string author, string description, string version) {
+public partial class PackageScaffolder {
+    public string GetAssemblyInfo() {
         return $@"using System.Reflection;
 
 [assembly: AssemblyTitle(""{assemblyName}"")]

@@ -1,11 +1,11 @@
-public static class LicenseTemplate {
+public partial class PackageScaffolder{
     public enum LicenseType {
         MIT,
         Apache,
         BSD
     }
 
-    public static string GetContent(this LicenseType licenseType, string author) {
+    public string GetLicense() {
         switch (licenseType) {
             case LicenseType.Apache:
                 return GetApacheLicense();
@@ -13,11 +13,11 @@ public static class LicenseTemplate {
                 return GetBSDLicense();
             case LicenseType.MIT:
             default:
-                return GetMITLicense(author);
+                return GetMITLicense();
         }
     }
 
-    private static string GetMITLicense(string author) {
+    private string GetMITLicense() {
         return $@"MIT License
 
 Copyright (c) 2024 {author}

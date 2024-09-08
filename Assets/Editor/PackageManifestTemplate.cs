@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 
-public static class PackageManifestTemplate {
-    public static string GetContent(string productName, string packageName, string description, string companyName, string version, List<PackageScaffolder.PackageDependency> dependencies) {
+public partial class PackageScaffolder{
+    public string GetPackageManifest() {
         // Format the dependencies as JSON
         var dependencyLines = new List<string>();
         foreach (var dep in dependencies) {
