@@ -1,8 +1,13 @@
 using System.Diagnostics;
+using System.IO;
 
 public static class GitUtility {
 
     public static void InitializeRepository(string workingDirectory, string packageName) {
+        if (Directory.Exists(Path.Combine(workingDirectory, ".git"))) {
+            UnityEngine.Debug.Log($"git repository already exists in '{Path.GetFullPath(workingDirectory)}'. Skipping git initialization step. (This message is harmless)");
+            return;
+        }
         string remoteRepoPath = $"https://github.com/julienkay/{packageName}.git";
         RunGitCommand("init", workingDirectory);
         RunGitCommand($"remote add origin {remoteRepoPath}", workingDirectory);

@@ -126,11 +126,6 @@ public partial class PackageScaffolder : EditorWindow {
     }
 
     private void CreatePackageScaffolding() {
-        if (Directory.Exists(rootDirectory)) {
-            Debug.LogError($"The directory {rootDirectory} already exists!");
-            return;
-        }
-
         // Create the root structure
         Directory.CreateDirectory(rootDirectory);
         Directory.CreateDirectory(packageDirectory);
@@ -187,7 +182,8 @@ public partial class PackageScaffolder : EditorWindow {
         // Copy the .gitignore file
         string gitignorePath = Path.Combine(Directory.GetCurrentDirectory(), ".gitignore");
         if (File.Exists(gitignorePath)) {
-            File.Copy(gitignorePath, Path.Combine(projectDirectory, ".gitignore"), overwrite: true);
+            string targetPath = Path.Combine(projectDirectory, ".gitignore");
+            CopyFile(gitignorePath, targetPath);
         }
 
         // add the package to project manifest via local (relative) path
@@ -233,25 +229,25 @@ public partial class PackageScaffolder : EditorWindow {
     private void CreateRootFiles() {
         // Create a LICENSE file in the root
         string licensePath = Path.Combine(rootDirectory, "LICENSE");
-        File.WriteAllText(licensePath, GetLicense());
+        CreateFile(licensePath, GetLicense());
 
         // Create a README.md file in the root
         string readmePath = Path.Combine(rootDirectory, "README.md");
-        File.WriteAllText(readmePath, GetRepositoryReadme());
+        CreateFile(readmePath, GetRepositoryReadme());
     }
 
     private void CreatePackageFiles(string path) {
         // Create package.json manifest file inside the identifier folder
         string packageManifestPath = Path.Combine(path, "package.json");
-        File.WriteAllText(packageManifestPath, GetPackageManifest());
+        CreateFile(packageManifestPath, GetPackageManifest());
 
         // Create README.md file inside the identifier folder
         string readmePath = Path.Combine(path, "README.md");
-        File.WriteAllText(readmePath, GetPackageReadme());
+        CreateFile(readmePath, GetPackageReadme());
 
         // Create CHANGELOG.md file inside the identifier folder
         string changelogPath = Path.Combine(path, "CHANGELOG.md");
-        File.WriteAllText(changelogPath, ChangelogTemplate.GetContent(version));
+        CreateFile(changelogPath, ChangelogTemplate.GetContent(version));
     }
 
     // Utility method to copy directories
@@ -268,7 +264,7 @@ public partial class PackageScaffolder : EditorWindow {
         // Copy all files
         foreach (string file in Directory.GetFiles(sourceDir)) {
             string destFile = Path.Combine(destinationDir, Path.GetFileName(file));
-            File.Copy(file, destFile, true);
+            CopyFile(file, destFile);
         }
 
         // Copy all subdirectories recursively
@@ -281,13 +277,13 @@ public partial class PackageScaffolder : EditorWindow {
     // Utility method to create .asmdef files
     private void CreateAsmDef(string path) {
         string asmDefPath = Path.Combine(path, $"{assemblyName}.asmdef");
-        File.WriteAllText(asmDefPath, AsmDefTemplate.GetContent(assemblyName));
+        CreateFile(asmDefPath, AsmDefTemplate.GetContent(assemblyName));
     }
 
     // Utility method to create AssemblyInfo.cs files
     private void CreateAssemblyInfo(string path) {
         string asmDefPath = Path.Combine(path, "AssemblyInfo.cs");
-        File.WriteAllText(asmDefPath, GetAssemblyInfo());
+        CreateFile(asmDefPath, GetAssemblyInfo());
     }
 
     private void CreateDocsFolder(string path) {
@@ -305,24 +301,36 @@ public partial class PackageScaffolder : EditorWindow {
     private void CreateDocfxFiles(string path) {
         // Create docfx.json in the docs folder
         string docfxConfigPath = $"{path}/docfx.json";
-        File.WriteAllText(docfxConfigPath, GetDocfxJson());
+        CreateFile(docfxConfigPath, GetDocfxJson());
 
         // Create docfx-pdf.json in the docs folder
         string docfxPdfConfigPath = $"{path}/docfx-pdf.json";
-        File.WriteAllText(docfxPdfConfigPath, GetDocfxPdfJson());
+        CreateFile(docfxPdfConfigPath, GetDocfxPdfJson());
 
         // Create filterConfig.yml in the docs folder
         string filterConfigPath = $"{path}/filterConfig.yml";
-        File.WriteAllText(filterConfigPath, GetFilterConfig());
+        CreateFile(filterConfigPath, GetFilterConfig());
 
         // Create root index.md in the docs folder
         string indexPath = $"{path}/index.md";
-        File.WriteAllText(indexPath, GetIndexMD());
+        CreateFile(indexPath, GetIndexMD());
 
         string tocPath = $"{path}/toc.yml";
-        File.WriteAllText(tocPath, GetRootToc());
+        CreateFile(tocPath, GetRootToc());
 
         string manualTocPath = $"{path}/manual/toc.yml";
-        File.WriteAllText(manualTocPath, GetManualToc());
+        CreateFile(manualTocPath, GetManualToc());
+    }
+
+    private void CreateFile(string path, string content) {
+        if (!File.Exists(path)) {
+            File.WriteAllText(path, content);
+        }
+    }
+
+    private void CopyFile(string sourceFileName, string destFileName) {
+        if (!File.Exists(sourceFileName)) {
+            File.Copy(sourceFileName, destFileName, overwrite: false);
+        }
     }
 }

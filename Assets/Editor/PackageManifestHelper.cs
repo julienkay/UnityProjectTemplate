@@ -6,6 +6,11 @@ public static class PackageManagerHelper {
 
     // Add a specific package to the manifest.json
     public static void InsertPackageLine(string manifestPath, string identifier) {
+        // do nothing if package dependency already exists
+        if (File.ReadAllText(manifestPath).Contains($@"""{identifier}"": ""file:../../../{identifier}""")) {
+            return;
+        }
+
         var lines = File.ReadAllLines(manifestPath).ToList();
         string newLine = $@"    ""{identifier}"": ""file:../../../{identifier}"",";
 
