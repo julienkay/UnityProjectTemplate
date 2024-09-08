@@ -23,8 +23,9 @@ public partial class PackageScaffolder : EditorWindow {
     internal string projectDirectory { get { return Path.Combine(rootDirectory, "projects", productName); } }
 
     // New toggles for Documentation and Tests folders
-    private bool createEditorFolder = false;
     private bool createDocsFolder = true;
+    private bool createSamplesFolder = false;
+    private bool createEditorFolder = false;
     private bool createTestsFolder = false;
 
     [SerializeField]
@@ -110,8 +111,9 @@ public partial class PackageScaffolder : EditorWindow {
         licenseType = (LicenseType)EditorGUILayout.EnumPopup("License Type", licenseType);
 
         // Add toggles for optional folders
-        createEditorFolder = EditorGUILayout.Toggle("Create Editor Folder", createEditorFolder);
         createDocsFolder = EditorGUILayout.Toggle("Create Documentation Folder", createDocsFolder);
+        createSamplesFolder = EditorGUILayout.Toggle("Create Samples Folder", createSamplesFolder);
+        createEditorFolder = EditorGUILayout.Toggle("Create Editor Folder", createEditorFolder);
         createTestsFolder = EditorGUILayout.Toggle("Create Tests Folder", createTestsFolder);
 
         // Draw the reorderable list
@@ -152,10 +154,14 @@ public partial class PackageScaffolder : EditorWindow {
     private void CreatePackageFolders() {
         string runtimePath = Path.Combine(packageDirectory, "Runtime");
         Directory.CreateDirectory(runtimePath);
-        CreateAsmDef(runtimePath);
+        CreateRuntimeAsmDef(runtimePath);
         CreateAssemblyInfo(runtimePath);
 
-        // Conditionally create the Editor, Documentation and Tests folders
+        // Conditionally create the Samples, Editor and Tests folders
+        if (createSamplesFolder) {
+            CreateSamplesFolder();
+        }
+
         if (createEditorFolder) {
             Directory.CreateDirectory(Path.Combine(packageDirectory, "Editor"));
         }
@@ -239,7 +245,8 @@ public partial class PackageScaffolder : EditorWindow {
     private void CreatePackageFiles(string path) {
         // Create package.json manifest file inside the identifier folder
         string packageManifestPath = Path.Combine(path, "package.json");
-        CreateFile(packageManifestPath, GetPackageManifest());
+        // package.json is one of the few files getting overwritten in case we added samples, dependencies or anything
+        CreateFile(packageManifestPath, GetPackageManifest(), overwrite: true);
 
         // Create README.md file inside the identifier folder
         string readmePath = Path.Combine(path, "README.md");
@@ -274,16 +281,33 @@ public partial class PackageScaffolder : EditorWindow {
         }
     }
 
-    // Utility method to create .asmdef files
-    private void CreateAsmDef(string path) {
+    // Utility method to create .asmdef for the 'Runtime' folder
+    private void CreateRuntimeAsmDef(string path) {
         string asmDefPath = Path.Combine(path, $"{assemblyName}.asmdef");
-        CreateFile(asmDefPath, AsmDefTemplate.GetContent(assemblyName));
+        CreateFile(asmDefPath, GetRuntimeAsmDef());
+    }
+
+    // Utility method to create .asmdef for the 'Samples' folder
+    private void CreateSamplesAsmDef(string path) {
+        string asmDefPath = Path.Combine(path, $"{assemblyName}.asmdef");
+        CreateFile(asmDefPath, GetSamplesAsmDef());
     }
 
     // Utility method to create AssemblyInfo.cs files
     private void CreateAssemblyInfo(string path) {
         string asmDefPath = Path.Combine(path, "AssemblyInfo.cs");
         CreateFile(asmDefPath, GetAssemblyInfo());
+    }
+
+    private void CreateSamplesFolder() {
+        string samplesPath = Path.Combine(packageDirectory, "Samples~");
+        Directory.CreateDirectory(samplesPath);
+
+        Directory.CreateDirectory(Path.Combine(samplesPath, "00-SharedSampleAssets"));
+        Directory.CreateDirectory(Path.Combine(samplesPath, "01-BasicSample"));
+        CreateSamplesAsmDef(samplesPath);
+
+        CreateFile(Path.Combine(samplesPath, "01-BasicSample", "BasicSample.cs"), GetSampleScript());
     }
 
     private void CreateDocsFolder(string path) {
@@ -322,8 +346,8 @@ public partial class PackageScaffolder : EditorWindow {
         CreateFile(manualTocPath, GetManualToc());
     }
 
-    private void CreateFile(string path, string content) {
-        if (!File.Exists(path)) {
+    private void CreateFile(string path, string content, bool overwrite = false) {
+        if (!File.Exists(path) || overwrite) {
             File.WriteAllText(path, content);
         }
     }
