@@ -353,7 +353,7 @@ public partial class PackageScaffolder : EditorWindow {
     }
 
     private void CopyFile(string sourceFileName, string destFileName) {
-        if (!File.Exists(sourceFileName)) {
+        if (!File.Exists(destFileName)) {
             File.Copy(sourceFileName, destFileName, overwrite: false);
         }
     }
