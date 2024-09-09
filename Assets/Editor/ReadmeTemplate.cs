@@ -10,7 +10,7 @@ public partial class PackageScaffolder{
 # {productName}
 {description}
 
-[OpenUPM] · [Documentation (coming soon)] · [Feedback/Questions]
+[OpenUPM] · [Documentation (coming soon)]
 
 [OpenUPM]: https://openupm.com/packages/{packageName}
 [Documentation (coming soon)]: https://github.com/julienkay/{packageName}
