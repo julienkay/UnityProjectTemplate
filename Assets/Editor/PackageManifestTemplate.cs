@@ -8,7 +8,7 @@ public partial class PackageScaffolder{
         foreach (var dep in dependencies) {
             dependencyLines.Add($"    \"{dep.packageName}\": \"{dep.version}\"");
         }
-        string dependenciesJson = dependencyLines.Count > 0 ? $"\"dependencies\": {{\n{string.Join(",\n", dependencyLines)}\n  }}" : "";
+        string dependenciesJson = dependencyLines.Count > 0 ? $"\"dependencies\": {{\n{string.Join(",\n", dependencyLines)}\n  }}," : "";
         string samplesJson = createSamplesFolder ? GetSamples() : "";
 
         return $@"{{
@@ -16,14 +16,14 @@ public partial class PackageScaffolder{
   ""version"": ""{version}"",
   ""displayName"": ""{productName}"",
   ""description"": ""{description}"",
-  {dependenciesJson},
+  {dependenciesJson}
   ""author"": {{
     ""name"": ""Doji Technologies"",
     ""email"": ""support@doji-tech.com"",
     ""url"": ""https://www.doji-tech.com/""
   }},
-  {samplesJson},
   ""documentationUrl"": ""https://docs.doji-tech.com/{packageName}/""
+  {samplesJson}
 }}";
     }
 
@@ -39,6 +39,6 @@ public partial class PackageScaffolder{
       ""description"": ""Basic example on how to use {productName}."",
       ""path"": ""Samples~/01-BasicSample""
     }}
-  ]";
+  ],";
     }
 }
