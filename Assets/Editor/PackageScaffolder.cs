@@ -246,6 +246,7 @@ public partial class PackageScaffolder : EditorWindow {
         // Create package.json manifest file inside the identifier folder
         string packageManifestPath = Path.Combine(path, "package.json");
         // package.json is one of the few files getting overwritten in case we added samples, dependencies or anything
+        // TODO: make this an UpdateFile, that does not overwrite existing entries, only adds new ones
         CreateFile(packageManifestPath, GetPackageManifest(), overwrite: true);
 
         // Create README.md file inside the identifier folder
