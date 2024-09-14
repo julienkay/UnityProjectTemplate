@@ -31,7 +31,7 @@ public partial class PackageScaffolder{
         return $@"""samples"": [
     {{
       ""displayName"": ""Shared Sample Assets (Required)"",
-      ""description"": ""Shared resources for samples. Any other samples depends on this to be imported."",
+      ""description"": ""Shared resources for samples. All other samples depend on this being imported."",
       ""path"": ""Samples~/00-SharedSampleAssets""
     }},
     {{
