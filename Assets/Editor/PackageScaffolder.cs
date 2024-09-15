@@ -200,20 +200,29 @@ public partial class PackageScaffolder : EditorWindow {
     private static string originalCompanyName;
     private static string originalProductName;
     private static string originalVersion;
-    private static string originalIdentifier;
+    private static List<string> originalIdentifiers = new List<string>();
+    private static List<BuildTargetGroup> namedTargets = new List<BuildTargetGroup> {
+        BuildTargetGroup.Standalone,
+        BuildTargetGroup.Android
+    };
 
     private void UpdateProjectSettings() {
         // Store the original values
         originalCompanyName = PlayerSettings.companyName;
         originalProductName = PlayerSettings.productName;
         originalVersion = PlayerSettings.bundleVersion;
-        originalIdentifier = PlayerSettings.applicationIdentifier;
+        originalIdentifiers.Clear();
+        foreach (BuildTargetGroup target in namedTargets) {
+            originalIdentifiers.Add(PlayerSettings.GetApplicationIdentifier(target));
+        }
 
         // Set the new values
         PlayerSettings.companyName = companyName;
         PlayerSettings.productName = productName;
         PlayerSettings.bundleVersion = version;
-        PlayerSettings.applicationIdentifier = packageName;
+        foreach (BuildTargetGroup target in namedTargets) {
+            PlayerSettings.SetApplicationIdentifier(target, packageName);
+        }
 
         // Refresh the editor to apply changes
         AssetDatabase.SaveAssets();
@@ -225,7 +234,9 @@ public partial class PackageScaffolder : EditorWindow {
         PlayerSettings.companyName = originalCompanyName;
         PlayerSettings.productName = originalProductName;
         PlayerSettings.bundleVersion = originalVersion;
-        PlayerSettings.applicationIdentifier = originalIdentifier;
+        for (int i = 0; i < originalIdentifiers.Count; i++) {
+            PlayerSettings.SetApplicationIdentifier(namedTargets[i], originalIdentifiers[i]);
+        }
 
         // Save and refresh
         AssetDatabase.SaveAssets();
