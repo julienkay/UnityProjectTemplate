@@ -205,6 +205,7 @@ public partial class PackageScaffolder : EditorWindow {
         BuildTargetGroup.Standalone,
         BuildTargetGroup.Android
     };
+    private static string rootNamespace;
 
     private void UpdateProjectSettings() {
         // Store the original values
@@ -215,6 +216,7 @@ public partial class PackageScaffolder : EditorWindow {
         foreach (BuildTargetGroup target in namedTargets) {
             originalIdentifiers.Add(PlayerSettings.GetApplicationIdentifier(target));
         }
+        rootNamespace = EditorSettings.projectGenerationRootNamespace;
 
         // Set the new values
         PlayerSettings.companyName = companyName;
@@ -223,6 +225,7 @@ public partial class PackageScaffolder : EditorWindow {
         foreach (BuildTargetGroup target in namedTargets) {
             PlayerSettings.SetApplicationIdentifier(target, packageName);
         }
+        EditorSettings.projectGenerationRootNamespace = namespaceName;
 
         // Refresh the editor to apply changes
         AssetDatabase.SaveAssets();
@@ -237,6 +240,7 @@ public partial class PackageScaffolder : EditorWindow {
         for (int i = 0; i < originalIdentifiers.Count; i++) {
             PlayerSettings.SetApplicationIdentifier(namedTargets[i], originalIdentifiers[i]);
         }
+        EditorSettings.projectGenerationRootNamespace = rootNamespace;
 
         // Save and refresh
         AssetDatabase.SaveAssets();
