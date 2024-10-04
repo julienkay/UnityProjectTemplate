@@ -58,8 +58,7 @@ public partial class PackageCreationWizard {
     }},
     ""fileMetadataFiles"": [],
     ""template"": [
-      ""default"",
-      ""templates/unity""
+      ""default""
     ],
     ""postProcessors"": [],
     ""keepFileLink"": false,
