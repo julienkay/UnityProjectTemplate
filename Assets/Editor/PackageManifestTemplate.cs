@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-public partial class PackageScaffolder{
+public partial class PackageCreationWizard{
 
     public string GetPackageManifest() {
         // Format the dependencies as JSON

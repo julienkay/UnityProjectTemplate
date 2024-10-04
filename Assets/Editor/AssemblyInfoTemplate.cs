@@ -1,6 +1,6 @@
 using System;
 
-public partial class PackageScaffolder {
+public partial class PackageCreationWizard {
     public string GetAssemblyInfo() {
         return $@"using System.Reflection;
 

@@ -1,4 +1,4 @@
-public partial class PackageScaffolder {
+public partial class PackageCreationWizard {
     public string GetSampleScript() {
         return $@"using UnityEngine;
 

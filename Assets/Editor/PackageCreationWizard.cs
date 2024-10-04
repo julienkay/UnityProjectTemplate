@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using UnityEditorInternal;
 using System;
 
-public partial class PackageScaffolder : EditorWindow {
+public partial class PackageCreationWizard : EditorWindow {
 
     internal string companyName = "Doji Technologies";
     internal string productName = "MyPackage";
@@ -48,7 +48,7 @@ public partial class PackageScaffolder : EditorWindow {
 
     [MenuItem("Tools/Package Creation Wizard")]
     public static void ShowWindow() {
-        GetWindow<PackageScaffolder>("Package Creation Wizard");
+        GetWindow<PackageCreationWizard>("Package Creation Wizard");
     }
 
     private void OnEnable() {
@@ -97,7 +97,8 @@ public partial class PackageScaffolder : EditorWindow {
     }
 
     private void OnGUI() {
-        GUILayout.Label("Package Creation Wizard", EditorStyles.boldLabel);
+        GUILayout.Space(10);
+        GUILayout.Label("Package Information", EditorStyles.boldLabel);
 
         companyName = EditorGUILayout.TextField("Company Name", companyName);
         productName = EditorGUILayout.TextField("Product Name", productName);
@@ -117,6 +118,7 @@ public partial class PackageScaffolder : EditorWindow {
         createTestsFolder = EditorGUILayout.Toggle("Create Tests Folder", createTestsFolder);
 
         // Draw the reorderable list
+        GUILayout.Space(10);
         GUILayout.Label("Dependencies (Optional)", EditorStyles.boldLabel);
         m_DependenciesList.DoLayoutList();
 
