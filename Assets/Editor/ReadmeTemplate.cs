@@ -4,7 +4,7 @@ public partial class PackageCreationWizard{
     }
     public string GetRepositoryReadme() {
         return $@"<a href=""https://www.doji-tech.com/"">
-  <img src=""https://www.doji-tech.com/assets/favicon.ico"" alt=""doji logo"" title=""Doji"" align=""right"" height=""70"" />
+  <img src=""https://www.doji-tech.com/favicon.ico"" alt=""doji logo"" title=""Doji"" align=""right"" height=""70"" />
 </a>
 
 # {productName}
