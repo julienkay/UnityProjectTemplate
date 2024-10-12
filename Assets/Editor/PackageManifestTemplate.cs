@@ -22,7 +22,7 @@ public partial class PackageCreationWizard{
     ""email"": ""support@doji-tech.com"",
     ""url"": ""https://www.doji-tech.com/""
   }},
-  ""documentationUrl"": ""https://docs.doji-tech.com/{packageName}/""
+  ""documentationUrl"": ""https://docs.doji-tech.com/{packageName}/""{(createSamplesFolder ? "," : "")}
   {samplesJson}
 }}";
     }
@@ -39,6 +39,6 @@ public partial class PackageCreationWizard{
       ""description"": ""Basic example on how to use {productName}."",
       ""path"": ""Samples~/01-BasicSample""
     }}
-  ],";
+  ]";
     }
 }
