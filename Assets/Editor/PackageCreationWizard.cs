@@ -196,7 +196,7 @@ public partial class PackageCreationWizard : EditorWindow {
 
         // add the package to project manifest via local (relative) path
         string projectManifestPath = Path.Combine(projectDirectory, "Packages", "manifest.json");
-        PackageManagerHelper.InsertPackageLine(projectManifestPath, packageName);
+        CreateFile(projectManifestPath, GetProjectManifest(), overwrite: true);
     }
 
     private static string originalCompanyName;
