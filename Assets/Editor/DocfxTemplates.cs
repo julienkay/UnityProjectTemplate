@@ -53,7 +53,7 @@ public partial class PackageCreationWizard {
     ""globalMetadata"": {{
       ""_appFaviconPath"": ""images/favicon.ico"",
       ""_appLogoPath"": ""images/doji.png"",
-      ""_appLogoUrl"": ""https://www.doji-tech.com/"",
+      ""_appLogoUrl"": ""https://docs.doji-tech.com/"",
       ""_disableContribution"": true
     }},
     ""fileMetadataFiles"": [],
