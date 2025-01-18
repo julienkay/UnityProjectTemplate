@@ -11,9 +11,10 @@ public static class GitUtility {
         string remoteRepoPath = $"https://github.com/julienkay/{packageName}.git";
         RunGitCommand("init", workingDirectory);
         RunGitCommand($"remote add origin {remoteRepoPath}", workingDirectory);
+        CommitInitialChanges(workingDirectory);
     }
 
-    static void RunGitCommand(string arguments, string workingDirectory) {
+    static void RunGitCommand(string arguments, string workingDirectory, bool suppressStdErr = false) {
         ProcessStartInfo startInfo = new ProcessStartInfo {
             FileName = "git",
             Arguments = arguments,
@@ -38,9 +39,17 @@ public static class GitUtility {
                 UnityEngine.Debug.Log(output);
             }
 
-            if (!string.IsNullOrEmpty(error)) {
+            if (!suppressStdErr && !string.IsNullOrEmpty(error)) {
                 UnityEngine.Debug.LogError("Error: " + error);
             }
         }
+    }
+
+    public static void CommitInitialChanges(string workingDirectory) {
+        // Stage all files
+        RunGitCommand("add .", workingDirectory, suppressStdErr: true);
+
+        // Commit with the message "initial commit"
+        RunGitCommand("commit -m \"initial commit\"", workingDirectory);
     }
 }
