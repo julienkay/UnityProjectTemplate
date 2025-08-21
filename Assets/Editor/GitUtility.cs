@@ -14,7 +14,7 @@ public static class GitUtility {
         CommitInitialChanges(workingDirectory);
     }
 
-    static void RunGitCommand(string arguments, string workingDirectory, bool suppressStdErr = false) {
+    private static void RunGitCommand(string arguments, string workingDirectory, bool suppressStdErr = false) {
         ProcessStartInfo startInfo = new ProcessStartInfo {
             FileName = "git",
             Arguments = arguments,
