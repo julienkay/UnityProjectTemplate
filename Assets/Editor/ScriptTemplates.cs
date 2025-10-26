@@ -4,7 +4,7 @@ public partial class PackageCreationWizard {
 
 namespace {namespaceName}.Samples {{
 
-    public class {productName}_BasicSample : MonoBehaviour {{
+    public class {productName.Replace(" ", string.Empty)}_BasicSample : MonoBehaviour {{
 
     }}
 }}";
