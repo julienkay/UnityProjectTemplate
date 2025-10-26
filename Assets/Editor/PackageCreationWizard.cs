@@ -29,7 +29,7 @@ public partial class PackageCreationWizard : EditorWindow {
     private bool createTestsFolder = false;
 
     [SerializeField]
-    internal List<PackageDependency> dependencies = new List<PackageDependency> { new() { packageName = "com.unity.sentis", version = "2.0.0" } };
+    internal List<PackageDependency> dependencies = new List<PackageDependency> { new() { packageName = "com.unity.ai.inference", version = "2.3.0" } };
     [SerializeField]
     private ReorderableList m_DependenciesList;
 
