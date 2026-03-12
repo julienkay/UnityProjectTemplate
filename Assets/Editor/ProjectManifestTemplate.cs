@@ -38,7 +38,7 @@ public partial class PackageCreationWizard {
     private string GetTestables() {
         return createTestsFolder ? $@",
   ""testables"": [
-    ""com.doji.sentis-utils""
+    ""{packageName}""
   ]" : "";
     }
 }
