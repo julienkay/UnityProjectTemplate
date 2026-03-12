@@ -1,7 +1,8 @@
-using UnityEditor;
-using UnityEngine;
-using System.IO;
 using System.Collections.Generic;
+using System.IO;
+using UnityEditor;
+using UnityEditor.Build;
+using UnityEngine;
 using Process = System.Diagnostics.Process;
 using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
 
@@ -19,9 +20,9 @@ public class ProjectCreationWizard : EditorWindow {
     private static string originalProductName;
     private static string originalVersion;
     private static List<string> originalIdentifiers = new List<string>();
-    private static List<BuildTargetGroup> namedTargets = new List<BuildTargetGroup> {
-        BuildTargetGroup.Standalone,
-        BuildTargetGroup.Android
+    private static List<NamedBuildTarget> namedTargets = new List<NamedBuildTarget> {
+        NamedBuildTarget.Standalone,
+        NamedBuildTarget.Android
     };
     private static string rootNamespace;
 
@@ -76,7 +77,7 @@ public class ProjectCreationWizard : EditorWindow {
         originalProductName = PlayerSettings.productName;
         originalVersion = PlayerSettings.bundleVersion;
         originalIdentifiers.Clear();
-        foreach (BuildTargetGroup target in namedTargets) {
+        foreach (var target in namedTargets) {
             originalIdentifiers.Add(PlayerSettings.GetApplicationIdentifier(target));
         }
         rootNamespace = EditorSettings.projectGenerationRootNamespace;
@@ -84,7 +85,7 @@ public class ProjectCreationWizard : EditorWindow {
         PlayerSettings.companyName = companyName;
         PlayerSettings.productName = productName;
         PlayerSettings.bundleVersion = version;
-        foreach (BuildTargetGroup target in namedTargets) {
+        foreach (var target in namedTargets) {
             PlayerSettings.SetApplicationIdentifier(target, $"com.{companyName.ToLower().Replace(" ", "")}.{productName.ToLower()}");
         }
         EditorSettings.projectGenerationRootNamespace = productName;

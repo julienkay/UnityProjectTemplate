@@ -1,9 +1,10 @@
-using UnityEditor;
-using UnityEngine;
-using System.IO;
-using System.Collections.Generic;
-using UnityEditorInternal;
 using System;
+using System.Collections.Generic;
+using System.IO;
+using UnityEditor;
+using UnityEditor.Build;
+using UnityEditorInternal;
+using UnityEngine;
 
 public partial class PackageCreationWizard : EditorWindow {
 
@@ -203,9 +204,9 @@ public partial class PackageCreationWizard : EditorWindow {
     private static string originalProductName;
     private static string originalVersion;
     private static List<string> originalIdentifiers = new List<string>();
-    private static List<BuildTargetGroup> namedTargets = new List<BuildTargetGroup> {
-        BuildTargetGroup.Standalone,
-        BuildTargetGroup.Android
+    private static List<NamedBuildTarget> namedTargets = new List<NamedBuildTarget> {
+        NamedBuildTarget.Standalone,
+        NamedBuildTarget.Android
     };
     private static string rootNamespace;
 
@@ -215,7 +216,7 @@ public partial class PackageCreationWizard : EditorWindow {
         originalProductName = PlayerSettings.productName;
         originalVersion = PlayerSettings.bundleVersion;
         originalIdentifiers.Clear();
-        foreach (BuildTargetGroup target in namedTargets) {
+        foreach (var target in namedTargets) {
             originalIdentifiers.Add(PlayerSettings.GetApplicationIdentifier(target));
         }
         rootNamespace = EditorSettings.projectGenerationRootNamespace;
@@ -224,7 +225,7 @@ public partial class PackageCreationWizard : EditorWindow {
         PlayerSettings.companyName = companyName;
         PlayerSettings.productName = productName;
         PlayerSettings.bundleVersion = version;
-        foreach (BuildTargetGroup target in namedTargets) {
+        foreach (var target in namedTargets) {
             PlayerSettings.SetApplicationIdentifier(target, packageName);
         }
         EditorSettings.projectGenerationRootNamespace = namespaceName;
