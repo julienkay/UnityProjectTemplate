@@ -1,44 +1,52 @@
-using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Linq;
+using static JsonBuilder;
 
-public partial class PackageCreationWizard{
-
+public partial class PackageCreationWizard {
     public string GetPackageManifest() {
-        // Format the dependencies as JSON
-        var dependencyLines = new List<string>();
-        foreach (var dep in dependencies) {
-            dependencyLines.Add($"    \"{dep.packageName}\": \"{dep.version}\"");
-        }
-        string dependenciesJson = dependencyLines.Count > 0 ? $"\"dependencies\": {{\n{string.Join(",\n", dependencyLines)}\n  }}," : "";
-        string samplesJson = createSamplesFolder ? GetSamples() : "";
+        var json = Obj(
+            Prop("name", packageName),
+            Prop("version", version),
+            Prop("displayName", productName),
+            Prop("description", description),
 
-        return $@"{{
-  ""name"": ""{packageName}"",
-  ""version"": ""{version}"",
-  ""displayName"": ""{productName}"",
-  ""description"": ""{description}"",
-  {dependenciesJson}
-  ""author"": {{
-    ""name"": ""Doji Technologies"",
-    ""email"": ""support@doji-tech.com"",
-    ""url"": ""https://www.doji-tech.com/""
-  }},
-  ""documentationUrl"": ""https://docs.doji-tech.com/{packageName}/""{(createSamplesFolder ? "," : "")}
-  {samplesJson}
-}}";
+            Prop("author", Obj(
+                Prop("name", "Doji Technologies"),
+                Prop("url", "https://www.doji-tech.com/"),
+                Prop("email", "support@doji-tech.com")
+            )),
+
+            Prop("documentationUrl", $"https://docs.doji-tech.com/{packageName}/"),
+
+            PropIf(createSamplesFolder, "samples", GetSamples()),
+            PropIf(dependencies.Count > 0, "dependencies", GetDependencies())
+        );
+
+        return json.ToString(Formatting.Indented);
     }
 
-    public string GetSamples() {
-        return $@"""samples"": [
-    {{
-      ""displayName"": ""Shared Sample Assets (Required)"",
-      ""description"": ""Shared resources for samples. All other samples depend on this being imported."",
-      ""path"": ""Samples~/00-SharedSampleAssets""
-    }},
-    {{
-      ""displayName"": ""Basic Sample"",
-      ""description"": ""Basic example on how to use {productName}."",
-      ""path"": ""Samples~/01-BasicSample""
-    }}
-  ]";
+    JArray GetSamples() {
+        return Arr(
+            Obj(
+                Prop("displayName", "Shared Sample Assets (Required)"),
+                Prop("description", "Shared resources for samples. All other samples depend on this being imported."),
+                Prop("path", "Samples~/00-SharedSampleAssets")
+            ),
+            Obj(
+                Prop("displayName", "Basic Sample"),
+                Prop("description", $"Basic example on how to use {productName}."),
+                Prop("path", "Samples~/01-BasicSample")
+            )
+        );
+    }
+
+    JObject GetDependencies() {
+        var obj = new JObject();
+
+        foreach (var dep in dependencies.OrderBy(d => d.packageName))
+            obj[dep.packageName] = dep.version;
+
+        return obj;
     }
 }
