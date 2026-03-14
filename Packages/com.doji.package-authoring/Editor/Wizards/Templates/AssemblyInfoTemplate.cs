@@ -21,12 +21,9 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
 
         /// <summary>
         /// Name used in generated copyright notices.
-        /// Falls back to the project company when author metadata is disabled or empty.
         /// </summary>
         private string GetCopyrightHolder() {
-            return _packageSettings.IncludeAuthor && !string.IsNullOrWhiteSpace(_packageSettings.Author)
-                ? _packageSettings.Author
-                : _projectSettings.CompanyName;
+            return _repoSettings.CopyrightHolder;
         }
     }
 }

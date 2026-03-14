@@ -11,6 +11,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
             ProductName = "MyPackage"
         };
         [SerializeField] private PackageScaffoldSettings packageDefaults = new();
+        [SerializeField] private RepoScaffoldSettings repoDefaults = new();
 
         /// <summary>
         /// Shared project defaults used by both the standalone and companion project flows.
@@ -21,5 +22,10 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
         /// Package defaults used by the package scaffolding flow.
         /// </summary>
         public PackageScaffoldSettings PackageDefaults => packageDefaults;
+
+        /// <summary>
+        /// Repository defaults used by the package scaffolding flow.
+        /// </summary>
+        public RepoScaffoldSettings RepoDefaults => repoDefaults;
     }
 }

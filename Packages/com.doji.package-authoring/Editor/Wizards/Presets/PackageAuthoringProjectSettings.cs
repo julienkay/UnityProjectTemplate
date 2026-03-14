@@ -12,6 +12,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
             ProductName = "MyPackage"
         };
         [SerializeField] private PackageScaffoldSettings packageDefaults = new();
+        [SerializeField] private RepoScaffoldSettings repoDefaults = new();
 
         /// <summary>
         /// Shared project defaults that seed both creation wizards.
@@ -22,6 +23,11 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
         /// Package defaults used by the package creation wizard and settings provider.
         /// </summary>
         public PackageScaffoldSettings PackageDefaults => packageDefaults;
+
+        /// <summary>
+        /// Repository defaults used by the package creation wizard and repository root templates.
+        /// </summary>
+        public RepoScaffoldSettings RepoDefaults => repoDefaults;
 
         /// <summary>
         /// Saves the current settings instance back into the project settings asset.

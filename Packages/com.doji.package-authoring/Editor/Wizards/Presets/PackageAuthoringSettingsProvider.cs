@@ -63,6 +63,11 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
             });
 
             EditorGUILayout.Space(8f);
+            CreationWizardLayout.DrawSection("Repo Defaults", () => {
+                CreationWizardLayout.DrawRepoSettingsFields(settings.RepoDefaults);
+            });
+
+            EditorGUILayout.Space(8f);
             CreationWizardLayout.DrawSection("Project Defaults", () => {
                 CreationWizardLayout.DrawProjectIdentityFields(settings.ProjectDefaults, productLabel: "Project Name");
                 settings.ProjectDefaults.TargetLocation =
@@ -90,6 +95,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
             var settings = PackageAuthoringProjectSettings.instance;
             settings.ProjectDefaults.CopyFrom(preset.ProjectDefaults);
             settings.PackageDefaults.CopyFrom(preset.PackageDefaults);
+            settings.RepoDefaults.CopyFrom(preset.RepoDefaults);
             settings.SaveSettings();
         }
     }

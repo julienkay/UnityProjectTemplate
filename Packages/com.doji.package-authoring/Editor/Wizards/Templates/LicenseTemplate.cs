@@ -3,7 +3,7 @@ using Doji.PackageAuthoring.Editor.Wizards.Models;
 namespace Doji.PackageAuthoring.Editor.Wizards {
     public partial class PackageCreationWizard {
         public string GetLicense() {
-            switch (_packageSettings.LicenseType) {
+            switch (_repoSettings.LicenseType) {
                 case LicenseType.Apache:
                     return GetApacheLicense();
                 case LicenseType.BSD:
@@ -15,9 +15,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         }
 
         private string GetMITLicense() {
-            string copyrightHolder = _packageSettings.IncludeAuthor && !string.IsNullOrWhiteSpace(_packageSettings.Author)
-                ? _packageSettings.Author
-                : _projectSettings.CompanyName;
+            string copyrightHolder = _repoSettings.CopyrightHolder;
 
             return $@"MIT License
 

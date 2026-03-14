@@ -22,11 +22,9 @@ MonoBehaviour:
     <AssemblyName>k__BackingField: Doji.Package
     <NamespaceName>k__BackingField: Doji.AI.PackageNS
     <Description>k__BackingField: Describe what this package provides.
-    <Author>k__BackingField: Doji Technologies
     <IncludeAuthor>k__BackingField: 1
     <AuthorUrl>k__BackingField: https://www.doji-tech.com/
     <AuthorEmail>k__BackingField: 
-    <LicenseType>k__BackingField: 0
     <IncludeMinimumUnityVersion>k__BackingField: 0
     <MinimumUnityMajor>k__BackingField: 
     <MinimumUnityMinor>k__BackingField: 
@@ -38,3 +36,6 @@ MonoBehaviour:
     <Dependencies>k__BackingField:
     - <PackageName>k__BackingField: com.unity.ai.inference
       <Version>k__BackingField: 2.3.0
+  repoDefaults:
+    <CopyrightHolder>k__BackingField: Julien Kipp
+    <LicenseType>k__BackingField: 0

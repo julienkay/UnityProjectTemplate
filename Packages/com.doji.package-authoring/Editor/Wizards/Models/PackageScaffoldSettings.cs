@@ -33,12 +33,6 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Models {
         public string Description { get; set; } = "Describe what this package provides.";
 
         /// <summary>
-        /// Author name written into generated package files such as the license.
-        /// </summary>
-        [field: SerializeField]
-        public string Author { get; set; } = "Your Name";
-
-        /// <summary>
         /// Whether author metadata should be emitted into generated package files.
         /// </summary>
         [field: SerializeField]
@@ -55,12 +49,6 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Models {
         /// </summary>
         [field: SerializeField]
         public string AuthorEmail { get; set; } = string.Empty;
-
-        /// <summary>
-        /// License template used for generated package files.
-        /// </summary>
-        [field: SerializeField]
-        public LicenseType LicenseType { get; set; } = LicenseType.MIT;
 
         /// <summary>
         /// Whether the generated package manifest should include a minimum Unity version.
@@ -134,11 +122,9 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Models {
             AssemblyName = other.AssemblyName;
             NamespaceName = other.NamespaceName;
             Description = other.Description;
-            Author = other.Author;
             IncludeAuthor = other.IncludeAuthor;
             AuthorUrl = other.AuthorUrl;
             AuthorEmail = other.AuthorEmail;
-            LicenseType = other.LicenseType;
             IncludeMinimumUnityVersion = other.IncludeMinimumUnityVersion;
             MinimumUnityMajor = other.MinimumUnityMajor;
             MinimumUnityMinor = other.MinimumUnityMinor;

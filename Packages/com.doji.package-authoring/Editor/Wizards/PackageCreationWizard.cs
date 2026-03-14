@@ -25,6 +25,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
 
         [SerializeField] private ProjectScaffoldSettings _projectSettings = new() { ProductName = "MyPackage" };
         [SerializeField] private PackageScaffoldSettings _packageSettings = new();
+        [SerializeField] private RepoScaffoldSettings _repoSettings = new();
         [SerializeField] private bool _initializedFromDefaults;
 
         private string RootDirectory => Path.Combine(_projectSettings.TargetLocation, _packageSettings.PackageName);
@@ -90,6 +91,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             var projectSettings = PackageAuthoringProjectSettings.instance;
             _projectSettings.CopyFrom(projectSettings.ProjectDefaults);
             _packageSettings.CopyFrom(projectSettings.PackageDefaults);
+            _repoSettings.CopyFrom(projectSettings.RepoDefaults);
         }
 
         /// <summary>
@@ -114,6 +116,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             }
 
             _packageSettings.CopyFrom(preset.PackageDefaults);
+            _repoSettings.CopyFrom(preset.RepoDefaults);
         }
 
         /// <summary>
@@ -189,6 +192,9 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
                 () => CreationWizardLayout.DrawSectionHeaderPresetButton(PackageSectionPresetTooltip, ShowPackagePresetMenu));
 
             GUILayout.Space(8f);
+            CreationWizardLayout.DrawSection("Repo Settings", DrawRepoSettingsSection);
+
+            GUILayout.Space(8f);
             CreationWizardLayout.DrawSection(
                 "Companion Project",
                 DrawCompanionProjectSection,
@@ -209,6 +215,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// </summary>
         private void ApplyProjectDefaultsToPackageDefinition() {
             _packageSettings.CopyFrom(PackageAuthoringProjectSettings.instance.PackageDefaults);
+            _repoSettings.CopyFrom(PackageAuthoringProjectSettings.instance.RepoDefaults);
         }
 
         /// <summary>
@@ -288,6 +295,13 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             GUILayout.Space(8f);
             EditorGUILayout.LabelField("Dependencies", EditorStyles.boldLabel);
             _dependenciesList.DoLayoutList();
+        }
+
+        /// <summary>
+        /// Draws the repository-level section that controls generated root metadata such as the license file.
+        /// </summary>
+        private void DrawRepoSettingsSection() {
+            CreationWizardLayout.DrawRepoSettingsFields(_repoSettings);
         }
 
         /// <summary>
