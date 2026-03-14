@@ -598,10 +598,20 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             CreateFile(manualTocPath, GetManualToc());
         }
 
+        /// <summary>
+        /// Writes scaffolded content to disk and ensures the target directory exists first.
+        /// </summary>
         private void CreateFile(string path, string content, bool overwrite = false) {
-            if (!File.Exists(path) || overwrite) {
-                File.WriteAllText(path, content);
+            if (File.Exists(path) && !overwrite) {
+                return;
             }
+
+            string directory = Path.GetDirectoryName(path);
+            if (!string.IsNullOrEmpty(directory)) {
+                Directory.CreateDirectory(directory);
+            }
+
+            File.WriteAllText(path, content);
         }
 
         private void CopyFile(string sourceFileName, string destFileName) {
