@@ -44,6 +44,7 @@ namespace Doji.PackageAuthoring.Editor {
         };
 
         [SerializeField] private ReorderableList _dependenciesList;
+        private UnityRegistryPackageAutocompleteField _dependencyAutocompleteField;
 
         private static class Styles {
             public static readonly GUIContent Version =
@@ -179,6 +180,8 @@ namespace Doji.PackageAuthoring.Editor {
         private void OnEnable() {
             LoadPreferences();
             _serializedObject = new SerializedObject(this);
+            CreateDependencyAutocompleteField();
+            PackageSearchCache.Shared.EnsureLoaded();
 
             _dependenciesList = new ReorderableList(
                 _serializedObject,
@@ -189,8 +192,20 @@ namespace Doji.PackageAuthoring.Editor {
                 displayRemoveButton: true) {
                 drawElementCallback = DrawDependencyListElement,
                 drawHeaderCallback = DrawDependencyHeaderElement,
-                elementHeight = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing
+                elementHeightCallback = GetDependencyElementHeight
             };
+        }
+
+        private void OnDisable() {
+            _dependencyAutocompleteField?.Dispose();
+            _dependencyAutocompleteField = null;
+        }
+
+        private void CreateDependencyAutocompleteField() {
+            _dependencyAutocompleteField?.Dispose();
+            _dependencyAutocompleteField = new UnityRegistryPackageAutocompleteField(
+                Repaint,
+                overflowMode: UnityRegistryPackageAutocompleteField.SuggestionOverflowMode.Scroll);
         }
 
         private void DrawDependencyHeaderElement(Rect rect) {
@@ -210,18 +225,18 @@ namespace Doji.PackageAuthoring.Editor {
             var packageNameProperty = dependency.FindPropertyRelative(PackageDependencyPackageNameField);
             var versionProperty = dependency.FindPropertyRelative(PackageDependencyVersionField);
 
-            var w = rect.width;
-            rect.x += 4;
-            rect.width = w / 3 * 2 - 2;
+            _dependencyAutocompleteField.Draw(rect, GetDependencyFieldKey(index), packageNameProperty, versionProperty);
+        }
 
-            rect.height -= EditorGUIUtility.standardVerticalSpacing;
-            packageNameProperty.stringValue = EditorGUI.TextField(rect, packageNameProperty.stringValue);
+        private float GetDependencyElementHeight(int index) {
+            var list = _dependenciesList.serializedProperty;
+            var dependency = list.GetArrayElementAtIndex(index);
+            var packageNameProperty = dependency.FindPropertyRelative(PackageDependencyPackageNameField);
+            return _dependencyAutocompleteField.GetHeight(GetDependencyFieldKey(index), packageNameProperty.stringValue);
+        }
 
-            using (new EditorGUI.DisabledScope(string.IsNullOrWhiteSpace(packageNameProperty.stringValue))) {
-                rect.x += w / 3 * 2;
-                rect.width = w / 3 - 4;
-                versionProperty.stringValue = EditorGUI.TextField(rect, versionProperty.stringValue);
-            }
+        private string GetDependencyFieldKey(int index) {
+            return $"{GetInstanceID()}.dependency.{index}";
         }
 
         private void OnGUI() {
