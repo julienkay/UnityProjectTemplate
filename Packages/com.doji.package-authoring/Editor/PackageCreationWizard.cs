@@ -158,26 +158,25 @@ namespace Doji.PackageAuthoring.Editor {
             Debug.Log($"Package scaffolding created successfully at {rootDirectory}");
         }
 
+        /// <summary>
+        /// Creates the package folders that live inside the generated package root.
+        /// </summary>
         private void CreatePackageFolders() {
-            string runtimePath = Path.Combine(packageDirectory, "Runtime");
-            Directory.CreateDirectory(runtimePath);
-            CreateRuntimeAsmDef(runtimePath);
-            CreateAssemblyInfo(runtimePath);
+            CreateRuntimeFolder();
 
-            // Conditionally create the Samples, Editor and Tests folders
             if (createSamplesFolder) {
                 CreateSamplesFolder();
             }
 
             if (createEditorFolder) {
-                Directory.CreateDirectory(Path.Combine(packageDirectory, "Editor"));
+                CreateEditorFolder();
             }
 
             if (createTestsFolder) {
                 Directory.CreateDirectory(Path.Combine(packageDirectory, "Tests"));
             }
 
-            // Create the package files inside this path
+            // Package metadata is written after the folder layout is in place.
             CreatePackageFiles(packageDirectory);
         }
 
@@ -309,24 +308,60 @@ namespace Doji.PackageAuthoring.Editor {
             }
         }
 
-        // Utility method to create .asmdef for the 'Runtime' folder
+        /// <summary>
+        /// Creates the runtime assembly definition in the provided folder.
+        /// </summary>
         private void CreateRuntimeAsmDef(string path) {
             string asmDefPath = Path.Combine(path, $"{assemblyName}.asmdef");
             CreateFile(asmDefPath, GetRuntimeAsmDef());
         }
 
-        // Utility method to create .asmdef for the 'Samples' folder
+        /// <summary>
+        /// Creates the samples assembly definition in the provided folder.
+        /// </summary>
         private void CreateSamplesAsmDef(string path) {
             string asmDefPath = Path.Combine(path, $"{assemblyName}.asmdef");
             CreateFile(asmDefPath, GetSamplesAsmDef());
         }
 
-        // Utility method to create AssemblyInfo.cs files
+        /// <summary>
+        /// Creates the editor-only assembly definition in the provided folder.
+        /// </summary>
+        private void CreateEditorAsmDef(string path) {
+            string asmDefPath = Path.Combine(path, $"{assemblyName}.Editor.asmdef");
+            CreateFile(asmDefPath, GetEditorAsmDef());
+        }
+
+        /// <summary>
+        /// Creates the runtime assembly info file in the provided folder.
+        /// </summary>
         private void CreateAssemblyInfo(string path) {
             string asmDefPath = Path.Combine(path, "AssemblyInfo.cs");
             CreateFile(asmDefPath, GetAssemblyInfo());
         }
 
+        /// <summary>
+        /// Creates the runtime folder and its baseline assembly files.
+        /// </summary>
+        private void CreateRuntimeFolder() {
+            string runtimePath = Path.Combine(packageDirectory, "Runtime");
+            Directory.CreateDirectory(runtimePath);
+            CreateRuntimeAsmDef(runtimePath);
+            CreateAssemblyInfo(runtimePath);
+        }
+
+        /// <summary>
+        /// Creates the editor folder and its editor-only assembly definition.
+        /// </summary>
+        private void CreateEditorFolder() {
+            string editorPath = Path.Combine(packageDirectory, "Editor");
+            Directory.CreateDirectory(editorPath);
+            CreateEditorAsmDef(editorPath);
+        }
+
+        /// <summary>
+        /// Creates the samples root, assembly definition, and starter sample script.
+        /// </summary>
         private void CreateSamplesFolder() {
             string samplesPath = Path.Combine(packageDirectory, "Samples~");
             Directory.CreateDirectory(samplesPath);
@@ -335,6 +370,7 @@ namespace Doji.PackageAuthoring.Editor {
             Directory.CreateDirectory(Path.Combine(samplesPath, "01-BasicSample"));
             CreateSamplesAsmDef(samplesPath);
 
+            // Keep the starter sample in a numbered folder so package manager ordering is predictable.
             CreateFile(Path.Combine(samplesPath, "01-BasicSample", "BasicSample.cs"), GetSampleScript());
         }
 
