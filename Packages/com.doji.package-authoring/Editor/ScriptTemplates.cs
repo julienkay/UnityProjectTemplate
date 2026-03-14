@@ -3,9 +3,9 @@ namespace Doji.PackageAuthoring.Editor {
         public string GetSampleScript() {
             return $@"using UnityEngine;
 
-namespace {namespaceName}.Samples {{
+namespace {_namespaceName}.Samples {{
 
-    public class {productName.Replace(" ", string.Empty)}_BasicSample : MonoBehaviour {{
+    public class {_productName.Replace(" ", string.Empty)}_BasicSample : MonoBehaviour {{
 
     }}
 }}";

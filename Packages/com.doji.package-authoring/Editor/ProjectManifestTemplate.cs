@@ -7,7 +7,7 @@ namespace Doji.PackageAuthoring.Editor {
         public string GetProjectManifest() {
             var json = Obj(
                 Prop("dependencies", GetProjectDependencies()),
-                PropIf(createTestsFolder, "testables", Arr(packageName))
+                PropIf(createTestsFolder, "testables", Arr(_packageName))
             );
 
             return json.ToString(Formatting.Indented);
@@ -15,7 +15,7 @@ namespace Doji.PackageAuthoring.Editor {
 
         JObject GetProjectDependencies() {
             var deps = new JObject {
-                [packageName] = $"file:../../../{packageName}",
+                [_packageName] = $"file:../../../{_packageName}",
                 ["com.unity.ide.visualstudio"] = "2.0.27",
                 ["com.unity.ugui"] = "2.0.0",
                 ["com.unity.modules.ai"] = "1.0.0",

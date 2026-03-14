@@ -7,7 +7,7 @@ namespace Doji.PackageAuthoring.Editor {
         }
 
         public string GetLicense() {
-            switch (licenseType) {
+            switch (_selectedLicenseType) {
                 case LicenseType.Apache:
                     return GetApacheLicense();
                 case LicenseType.BSD:
@@ -21,7 +21,7 @@ namespace Doji.PackageAuthoring.Editor {
         private string GetMITLicense() {
             return $@"MIT License
 
-Copyright (c) 2025 {author}
+Copyright (c) 2025 {_author}
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the ""Software""), to deal

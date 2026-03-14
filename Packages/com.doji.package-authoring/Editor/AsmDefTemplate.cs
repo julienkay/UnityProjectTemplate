@@ -5,8 +5,8 @@ namespace Doji.PackageAuthoring.Editor {
         /// </summary>
         public string GetRuntimeAsmDef() {
             return $@"{{
-    ""name"": ""{assemblyName}"",
-    ""rootNamespace"": ""{namespaceName}"",
+    ""name"": ""{_assemblyName}"",
+    ""rootNamespace"": ""{_namespaceName}"",
     ""references"": [],
     ""includePlatforms"": [],
     ""excludePlatforms"": [],
@@ -27,8 +27,8 @@ namespace Doji.PackageAuthoring.Editor {
             // TODO: ideally we'd need to add a reference to the Runtime asmdef here, but the GUID is not known
             // until the project is first opened to generate the .meta file
             return $@"{{
-    ""name"": ""{assemblyName}.Samples"",
-    ""rootNamespace"": ""{namespaceName}.Samples"",
+    ""name"": ""{_assemblyName}.Samples"",
+    ""rootNamespace"": ""{_namespaceName}.Samples"",
     ""references"": [],
     ""includePlatforms"": [],
     ""excludePlatforms"": [],
@@ -47,10 +47,10 @@ namespace Doji.PackageAuthoring.Editor {
         /// </summary>
         public string GetEditorAsmDef() {
             return $@"{{
-    ""name"": ""{assemblyName}.Editor"",
-    ""rootNamespace"": ""{namespaceName}.Editor"",
+    ""name"": ""{_assemblyName}.Editor"",
+    ""rootNamespace"": ""{_namespaceName}.Editor"",
     ""references"": [
-        ""{assemblyName}""
+        ""{_assemblyName}""
     ],
     ""includePlatforms"": [
         ""Editor""

@@ -7,18 +7,18 @@ namespace Doji.PackageAuthoring.Editor {
     public partial class PackageCreationWizard {
         public string GetPackageManifest() {
             var json = Obj(
-                Prop("name", packageName),
-                Prop("version", version),
-                Prop("displayName", productName),
-                Prop("description", description),
+                Prop("name", _packageName),
+                Prop("version", _version),
+                Prop("displayName", _productName),
+                Prop("description", _description),
                 Prop("author", Obj(
                     Prop("name", "Doji Technologies"),
                     Prop("url", "https://www.doji-tech.com/"),
                     Prop("email", "support@doji-tech.com")
                 )),
-                Prop("documentationUrl", $"https://docs.doji-tech.com/{packageName}/"),
+                Prop("documentationUrl", $"https://docs.doji-tech.com/{_packageName}/"),
                 PropIf(createSamplesFolder, "samples", GetSamples()),
-                PropIf(dependencies.Count > 0, "dependencies", GetDependencies())
+                PropIf(_dependencies.Count > 0, "dependencies", GetDependencies())
             );
 
             return json.ToString(Formatting.Indented);
@@ -34,7 +34,7 @@ namespace Doji.PackageAuthoring.Editor {
                 ),
                 Obj(
                     Prop("displayName", "Basic Sample"),
-                    Prop("description", $"Basic example on how to use {productName}."),
+                    Prop("description", $"Basic example on how to use {_productName}."),
                     Prop("path", "Samples~/01-BasicSample")
                 )
             );
@@ -43,8 +43,9 @@ namespace Doji.PackageAuthoring.Editor {
         JObject GetDependencies() {
             var obj = new JObject();
 
-            foreach (var dep in dependencies.OrderBy(d => d.packageName))
-                obj[dep.packageName] = dep.version;
+            foreach (var dep in _dependencies.OrderBy(d => d.PackageName)) {
+                obj[dep.PackageName] = dep.Version;
+            }
 
             return obj;
         }
