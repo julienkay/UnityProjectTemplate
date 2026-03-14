@@ -11,17 +11,32 @@ namespace Doji.PackageAuthoring.Editor {
                 Prop("version", _projectSettings.Version),
                 Prop("displayName", _projectSettings.ProductName),
                 Prop("description", _packageSettings.Description),
-                Prop("author", Obj(
-                    Prop("name", "Doji Technologies"),
-                    Prop("url", "https://www.doji-tech.com/"),
-                    Prop("email", "support@doji-tech.com")
-                )),
+                Prop("author", _packageSettings.IncludeAuthor ? GetAuthorMetadata() : null),
+                PropIf(
+                    _packageSettings.IncludeMinimumUnityVersion,
+                    "unity",
+                    $"{_packageSettings.MinimumUnityMajor}.{_packageSettings.MinimumUnityMinor}"),
+                PropIf(
+                    _packageSettings.IncludeMinimumUnityVersion &&
+                    !string.IsNullOrWhiteSpace(_packageSettings.MinimumUnityRelease),
+                    "unityRelease",
+                    _packageSettings.MinimumUnityRelease),
                 Prop("documentationUrl", $"https://docs.doji-tech.com/{_packageSettings.PackageName}/"),
                 PropIf(_packageSettings.CreateSamplesFolder, "samples", GetSamples()),
                 PropIf(_packageSettings.Dependencies.Count > 0, "dependencies", GetDependencies())
             );
 
             return json.ToString(Formatting.Indented);
+        }
+
+        private JObject GetAuthorMetadata() {
+            var author = Obj(
+                Prop("name", _packageSettings.Author),
+                Prop("url", _packageSettings.AuthorUrl),
+                Prop("email", _packageSettings.AuthorEmail)
+            );
+
+            return author.HasValues ? author : null;
         }
 
         JArray GetSamples() {

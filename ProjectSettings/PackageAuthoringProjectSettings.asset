@@ -23,7 +23,14 @@ MonoBehaviour:
     <NamespaceName>k__BackingField: Doji.AI.PackageNS
     <Description>k__BackingField: Describe what this package provides.
     <Author>k__BackingField: Julien Kipp
+    <IncludeAuthor>k__BackingField: 1
+    <AuthorUrl>k__BackingField: 
+    <AuthorEmail>k__BackingField: 
     <LicenseType>k__BackingField: 0
+    <IncludeMinimumUnityVersion>k__BackingField: 0
+    <MinimumUnityMajor>k__BackingField: 
+    <MinimumUnityMinor>k__BackingField: 
+    <MinimumUnityRelease>k__BackingField: 
     <CreateDocsFolder>k__BackingField: 1
     <CreateSamplesFolder>k__BackingField: 0
     <CreateEditorFolder>k__BackingField: 0

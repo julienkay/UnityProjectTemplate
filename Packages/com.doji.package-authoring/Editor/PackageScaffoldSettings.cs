@@ -39,10 +39,52 @@ namespace Doji.PackageAuthoring.Editor {
         public string Author { get; set; } = "Your Name";
 
         /// <summary>
+        /// Whether author metadata should be emitted into generated package files.
+        /// </summary>
+        [field: SerializeField]
+        public bool IncludeAuthor { get; set; } = true;
+
+        /// <summary>
+        /// Optional author URL written into the generated package manifest.
+        /// </summary>
+        [field: SerializeField]
+        public string AuthorUrl { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Optional author email written into the generated package manifest.
+        /// </summary>
+        [field: SerializeField]
+        public string AuthorEmail { get; set; } = string.Empty;
+
+        /// <summary>
         /// License template used for generated package files.
         /// </summary>
         [field: SerializeField]
         public LicenseType LicenseType { get; set; } = LicenseType.MIT;
+
+        /// <summary>
+        /// Whether the generated package manifest should include a minimum Unity version.
+        /// </summary>
+        [field: SerializeField]
+        public bool IncludeMinimumUnityVersion { get; set; }
+
+        /// <summary>
+        /// Major Unity version written into the package manifest when enabled.
+        /// </summary>
+        [field: SerializeField]
+        public string MinimumUnityMajor { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Minor Unity version written into the package manifest when enabled.
+        /// </summary>
+        [field: SerializeField]
+        public string MinimumUnityMinor { get; set; } = string.Empty;
+
+        /// <summary>
+        /// Optional Unity release suffix written into the package manifest when enabled.
+        /// </summary>
+        [field: SerializeField]
+        public string MinimumUnityRelease { get; set; } = string.Empty;
 
         /// <summary>
         /// Whether to include a documentation folder scaffold.
@@ -93,7 +135,14 @@ namespace Doji.PackageAuthoring.Editor {
             NamespaceName = other.NamespaceName;
             Description = other.Description;
             Author = other.Author;
+            IncludeAuthor = other.IncludeAuthor;
+            AuthorUrl = other.AuthorUrl;
+            AuthorEmail = other.AuthorEmail;
             LicenseType = other.LicenseType;
+            IncludeMinimumUnityVersion = other.IncludeMinimumUnityVersion;
+            MinimumUnityMajor = other.MinimumUnityMajor;
+            MinimumUnityMinor = other.MinimumUnityMinor;
+            MinimumUnityRelease = other.MinimumUnityRelease;
             CreateDocsFolder = other.CreateDocsFolder;
             CreateSamplesFolder = other.CreateSamplesFolder;
             CreateEditorFolder = other.CreateEditorFolder;

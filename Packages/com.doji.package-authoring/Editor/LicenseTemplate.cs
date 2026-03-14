@@ -13,9 +13,13 @@ namespace Doji.PackageAuthoring.Editor {
         }
 
         private string GetMITLicense() {
+            string copyrightHolder = _packageSettings.IncludeAuthor && !string.IsNullOrWhiteSpace(_packageSettings.Author)
+                ? _packageSettings.Author
+                : _projectSettings.CompanyName;
+
             return $@"MIT License
 
-Copyright (c) 2025 {_packageSettings.Author}
+Copyright (c) 2025 {copyrightHolder}
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the ""Software""), to deal

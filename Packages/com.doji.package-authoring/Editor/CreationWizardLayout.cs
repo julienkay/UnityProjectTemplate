@@ -7,6 +7,10 @@ namespace Doji.PackageAuthoring.Editor {
     /// Shared IMGUI layout helpers for the creation wizards and settings page.
     /// </summary>
     internal static class CreationWizardLayout {
+        private static readonly GUIContent LicenseTypeLabel = EditorGUIUtility.TrTextContent(
+            "License Type",
+            "Controls the generated license template. Copyright notices use the author name when enabled, otherwise the project company name.");
+
         /// <summary>
         /// Draws a boxed section with a bold header and body content.
         /// </summary>
@@ -67,8 +71,27 @@ namespace Doji.PackageAuthoring.Editor {
             packageSettings.AssemblyName = EditorGUILayout.TextField("Assembly Name", packageSettings.AssemblyName);
             packageSettings.NamespaceName = EditorGUILayout.TextField("Namespace", packageSettings.NamespaceName);
             packageSettings.Description = EditorGUILayout.TextField("Description", packageSettings.Description);
-            packageSettings.Author = EditorGUILayout.TextField("Author", packageSettings.Author);
-            packageSettings.LicenseType = (LicenseType)EditorGUILayout.EnumPopup("License Type", packageSettings.LicenseType);
+            packageSettings.IncludeAuthor = EditorGUILayout.Toggle("Author", packageSettings.IncludeAuthor);
+            if (packageSettings.IncludeAuthor) {
+                EditorGUI.indentLevel++;
+                packageSettings.Author = EditorGUILayout.TextField("Name", packageSettings.Author);
+                packageSettings.AuthorUrl = EditorGUILayout.TextField("URL", packageSettings.AuthorUrl);
+                packageSettings.AuthorEmail = EditorGUILayout.TextField("Email", packageSettings.AuthorEmail);
+                EditorGUI.indentLevel--;
+            }
+
+            packageSettings.LicenseType =
+                (LicenseType)EditorGUILayout.EnumPopup(LicenseTypeLabel, packageSettings.LicenseType);
+            packageSettings.IncludeMinimumUnityVersion =
+                EditorGUILayout.Toggle("Minimum Unity Version", packageSettings.IncludeMinimumUnityVersion);
+            if (packageSettings.IncludeMinimumUnityVersion) {
+                EditorGUI.indentLevel++;
+                packageSettings.MinimumUnityMajor = EditorGUILayout.TextField("Major", packageSettings.MinimumUnityMajor);
+                packageSettings.MinimumUnityMinor = EditorGUILayout.TextField("Minor", packageSettings.MinimumUnityMinor);
+                packageSettings.MinimumUnityRelease =
+                    EditorGUILayout.TextField("Release", packageSettings.MinimumUnityRelease);
+                EditorGUI.indentLevel--;
+            }
         }
 
         /// <summary>
