@@ -60,7 +60,9 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// </summary>
         [MenuItem("Tools/Package Creation Wizard")]
         public static void ShowWindow() {
-            GetWindow<PackageCreationWizard>().titleContent = new GUIContent("Package Creation");
+            var window = GetWindow<PackageCreationWizard>();
+            window.titleContent = new GUIContent("Package Creation");
+            window.minSize = new Vector2(1000f, 800f);
         }
 
         /// <summary>
