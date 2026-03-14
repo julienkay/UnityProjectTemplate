@@ -31,7 +31,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
 
         private JObject GetAuthorMetadata() {
             var author = Obj(
-                Prop("name", _projectSettings.CompanyName),
+                Prop("name", _packageSettings.CompanyName),
                 Prop("url", _packageSettings.AuthorUrl),
                 Prop("email", _packageSettings.AuthorEmail)
             );

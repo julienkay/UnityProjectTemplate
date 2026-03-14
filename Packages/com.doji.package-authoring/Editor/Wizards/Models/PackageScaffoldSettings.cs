@@ -33,6 +33,12 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Models {
         public string Description { get; set; } = "Describe what this package provides.";
 
         /// <summary>
+        /// Company name written into generated package metadata such as the manifest author block.
+        /// </summary>
+        [field: SerializeField]
+        public string CompanyName { get; set; } = "Your Company";
+
+        /// <summary>
         /// Whether author metadata should be emitted into generated package files.
         /// </summary>
         [field: SerializeField]
@@ -122,6 +128,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Models {
             AssemblyName = other.AssemblyName;
             NamespaceName = other.NamespaceName;
             Description = other.Description;
+            CompanyName = other.CompanyName;
             IncludeAuthor = other.IncludeAuthor;
             AuthorUrl = other.AuthorUrl;
             AuthorEmail = other.AuthorEmail;

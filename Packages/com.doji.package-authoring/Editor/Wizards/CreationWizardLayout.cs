@@ -72,6 +72,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             packageSettings.AssemblyName = EditorGUILayout.TextField("Assembly Name", packageSettings.AssemblyName);
             packageSettings.NamespaceName = EditorGUILayout.TextField("Namespace", packageSettings.NamespaceName);
             packageSettings.Description = EditorGUILayout.TextField("Description", packageSettings.Description);
+            packageSettings.CompanyName = EditorGUILayout.TextField("Company Name", packageSettings.CompanyName);
             packageSettings.IncludeAuthor = EditorGUILayout.Toggle("Include Author Metadata", packageSettings.IncludeAuthor);
             if (packageSettings.IncludeAuthor) {
                 EditorGUI.indentLevel++;
