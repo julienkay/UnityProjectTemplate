@@ -11,41 +11,28 @@ namespace Doji.PackageAuthoring.Editor {
     /// Editor window that scaffolds a package repository and a companion Unity test project.
     /// </summary>
     public partial class PackageCreationWizard : EditorWindow {
-        private const string PreferencesKey = "Doji.PackageAuthoring.PackageCreationWizard";
-        private const string PackageDependencyPackageNameField = "packageName";
-        private const string PackageDependencyVersionField = "version";
+        private const string PackageSectionPresetTooltip = "Apply package defaults or a package preset asset.";
+        private const string CompanionProjectPresetTooltip = "Apply project defaults or a preset asset to the companion project.";
+        private static readonly string DependenciesField = $"<{nameof(PackageScaffoldSettings.Dependencies)}>k__BackingField";
+        private static readonly string PackageDependencyPackageNameField =
+            $"<{nameof(PackageDependencyEntry.PackageName)}>k__BackingField";
+        private static readonly string PackageDependencyVersionField =
+            $"<{nameof(PackageDependencyEntry.Version)}>k__BackingField";
 
-        private string _companyName = "Doji Technologies";
-        private string _productName = "MyPackage";
-        private string _packageName = "com.doji.package";
-        private string _assemblyName = "Doji.Package";
-        private string _namespaceName = "Doji.AI.PackageNS";
-        private string _description = "A short description for readmes etc";
-        private string _author = "Julien Kipp";
-        private string _version = "1.0.0";
-        private LicenseType _selectedLicenseType = LicenseType.MIT;
+        [SerializeField] private ProjectScaffoldSettings _projectSettings = new() { ProductName = "MyPackage" };
+        [SerializeField] private PackageScaffoldSettings _packageSettings = new();
+        [SerializeField] private bool _initializedFromDefaults;
 
-        private string _targetLocation = "../";
-        private string RootDirectory => Path.Combine(_targetLocation, _packageName);
-        private string PackageDirectory => Path.Combine(RootDirectory, _packageName);
-        private string ProjectDirectory => Path.Combine(RootDirectory, "projects", _productName);
-
-        private bool createDocsFolder = true;
-        private bool createSamplesFolder = false;
-        private bool createEditorFolder = false;
-        private bool createTestsFolder = false;
-
-        [SerializeField]
-        private List<PackageDependency> _dependencies = new() {
-            new() {
-                PackageName = "com.unity.ai.inference",
-                Version = "2.3.0"
-            }
-        };
+        private string RootDirectory => Path.Combine(_projectSettings.TargetLocation, _packageSettings.PackageName);
+        private string PackageDirectory => Path.Combine(RootDirectory, _packageSettings.PackageName);
+        private string ProjectDirectory => Path.Combine(RootDirectory, "projects", _projectSettings.ProductName);
 
         [SerializeField] private ReorderableList _dependenciesList;
         private UnityRegistryPackageAutocompleteField _dependencyAutocompleteField;
 
+        /// <summary>
+        /// Caches reusable GUI content for the dependency list header.
+        /// </summary>
         private static class Styles {
             public static readonly GUIContent Version =
                 EditorGUIUtility.TrTextContent("Version", "Must follow SemVer (ex: 1.0.0-preview.1).");
@@ -57,135 +44,31 @@ namespace Doji.PackageAuthoring.Editor {
         private SerializedObject _serializedObject;
 
         /// <summary>
-        /// Serializable dependency entry written into the generated package manifest.
-        /// </summary>
-        [Serializable]
-        public class PackageDependency {
-            [SerializeField] private string packageName;
-            [SerializeField] private string version;
-
-            public string PackageName {
-                get => packageName;
-                set => packageName = value;
-            }
-
-            public string Version {
-                get => version;
-                set => version = value;
-            }
-        }
-
-        [Serializable]
-        private class WizardPreferences {
-            [SerializeField] private string companyName;
-            [SerializeField] private string productName;
-            [SerializeField] private string packageName;
-            [SerializeField] private string assemblyName;
-            [SerializeField] private string namespaceName;
-            [SerializeField] private string description;
-            [SerializeField] private string author;
-            [SerializeField] private string version;
-            [SerializeField] private int selectedLicenseType;
-            [SerializeField] private string targetLocation;
-            [SerializeField] private bool createDocsFolder;
-            [SerializeField] private bool createSamplesFolder;
-            [SerializeField] private bool createEditorFolder;
-            [SerializeField] private bool createTestsFolder;
-            [SerializeField] private List<PackageDependency> dependencies;
-
-            public string CompanyName {
-                get => companyName;
-                set => companyName = value;
-            }
-
-            public string ProductName {
-                get => productName;
-                set => productName = value;
-            }
-
-            public string PackageName {
-                get => packageName;
-                set => packageName = value;
-            }
-
-            public string AssemblyName {
-                get => assemblyName;
-                set => assemblyName = value;
-            }
-
-            public string NamespaceName {
-                get => namespaceName;
-                set => namespaceName = value;
-            }
-
-            public string Description {
-                get => description;
-                set => description = value;
-            }
-
-            public string Author {
-                get => author;
-                set => author = value;
-            }
-
-            public string Version {
-                get => version;
-                set => version = value;
-            }
-
-            public int SelectedLicenseType {
-                get => selectedLicenseType;
-                set => selectedLicenseType = value;
-            }
-
-            public string TargetLocation {
-                get => targetLocation;
-                set => targetLocation = value;
-            }
-
-            public bool CreateDocsFolder {
-                get => createDocsFolder;
-                set => createDocsFolder = value;
-            }
-
-            public bool CreateSamplesFolder {
-                get => createSamplesFolder;
-                set => createSamplesFolder = value;
-            }
-
-            public bool CreateEditorFolder {
-                get => createEditorFolder;
-                set => createEditorFolder = value;
-            }
-
-            public bool CreateTestsFolder {
-                get => createTestsFolder;
-                set => createTestsFolder = value;
-            }
-
-            public List<PackageDependency> Dependencies {
-                get => dependencies;
-                set => dependencies = value;
-            }
-        }
-
-        /// <summary>
         /// Opens the package creation wizard.
         /// </summary>
         [MenuItem("Tools/Package Creation Wizard")]
         public static void ShowWindow() {
-            GetWindow<PackageCreationWizard>("Package Creation Wizard");
+            GetWindow<PackageCreationWizard>().titleContent = new GUIContent("Package Creation");
         }
 
+        /// <summary>
+        /// Initializes the window title, transient state, and dependency editor UI.
+        /// </summary>
         private void OnEnable() {
-            LoadPreferences();
+            titleContent = new GUIContent("Package Creation");
+
+            if (!_initializedFromDefaults) {
+                ApplyProjectDefaults();
+                _initializedFromDefaults = true;
+            }
+
             _serializedObject = new SerializedObject(this);
             CreateDependencyAutocompleteField();
             PackageSearchCache.Shared.EnsureLoaded();
 
             _dependenciesList = new ReorderableList(
                 _serializedObject,
-                _serializedObject.FindProperty(nameof(_dependencies)),
+                _serializedObject.FindProperty(nameof(_packageSettings)).FindPropertyRelative(DependenciesField),
                 draggable: true,
                 displayHeader: true,
                 displayAddButton: true,
@@ -196,11 +79,50 @@ namespace Doji.PackageAuthoring.Editor {
             };
         }
 
+        /// <summary>
+        /// Resets both the package and companion-project portions of the current window state from project defaults.
+        /// </summary>
+        private void ApplyProjectDefaults() {
+            var projectSettings = PackageAuthoringProjectSettings.instance;
+            _projectSettings.CopyFrom(projectSettings.ProjectDefaults);
+            _packageSettings.CopyFrom(projectSettings.PackageDefaults);
+        }
+
+        /// <summary>
+        /// Applies only the shared project-facing portion of a preset to the companion-project section.
+        /// </summary>
+        private void ApplyProjectPreset(PackageAuthoringDefaults preset) {
+            if (preset == null) {
+                ApplyProjectDefaultsToCompanionProject();
+                return;
+            }
+
+            _projectSettings.CopyFrom(preset.ProjectDefaults);
+        }
+
+        /// <summary>
+        /// Applies only the package-facing portion of a preset to the package-definition section.
+        /// </summary>
+        private void ApplyPackagePreset(PackageAuthoringDefaults preset) {
+            if (preset == null) {
+                ApplyProjectDefaultsToPackageDefinition();
+                return;
+            }
+
+            _packageSettings.CopyFrom(preset.PackageDefaults);
+        }
+
+        /// <summary>
+        /// Releases transient editor-only helpers when the window closes or recompiles.
+        /// </summary>
         private void OnDisable() {
             _dependencyAutocompleteField?.Dispose();
             _dependencyAutocompleteField = null;
         }
 
+        /// <summary>
+        /// Recreates the dependency autocomplete field that is embedded in each reorderable-list row.
+        /// </summary>
         private void CreateDependencyAutocompleteField() {
             _dependencyAutocompleteField?.Dispose();
             _dependencyAutocompleteField = new UnityRegistryPackageAutocompleteField(
@@ -208,6 +130,9 @@ namespace Doji.PackageAuthoring.Editor {
                 overflowMode: UnityRegistryPackageAutocompleteField.SuggestionOverflowMode.Scroll);
         }
 
+        /// <summary>
+        /// Draws the dependency list header labels.
+        /// </summary>
         private void DrawDependencyHeaderElement(Rect rect) {
             var w = rect.width;
             rect.x += 4;
@@ -219,6 +144,9 @@ namespace Doji.PackageAuthoring.Editor {
             GUI.Label(rect, Styles.Version, EditorStyles.label);
         }
 
+        /// <summary>
+        /// Draws one package dependency row using the shared autocomplete field.
+        /// </summary>
         private void DrawDependencyListElement(Rect rect, int index, bool isActive, bool isFocused) {
             var list = _dependenciesList.serializedProperty;
             var dependency = list.GetArrayElementAtIndex(index);
@@ -228,6 +156,9 @@ namespace Doji.PackageAuthoring.Editor {
             _dependencyAutocompleteField.Draw(rect, GetDependencyFieldKey(index), packageNameProperty, versionProperty);
         }
 
+        /// <summary>
+        /// Returns the dynamic row height required for a dependency entry and its autocomplete suggestions.
+        /// </summary>
         private float GetDependencyElementHeight(int index) {
             var list = _dependenciesList.serializedProperty;
             var dependency = list.GetArrayElementAtIndex(index);
@@ -235,42 +166,34 @@ namespace Doji.PackageAuthoring.Editor {
             return _dependencyAutocompleteField.GetHeight(GetDependencyFieldKey(index), packageNameProperty.stringValue);
         }
 
+        /// <summary>
+        /// Builds a stable per-row control key for the dependency autocomplete UI.
+        /// </summary>
         private string GetDependencyFieldKey(int index) {
             return $"{GetInstanceID()}.dependency.{index}";
         }
 
+        /// <summary>
+        /// Draws the package creation wizard UI.
+        /// </summary>
         private void OnGUI() {
             _serializedObject.Update();
-            EditorGUI.BeginChangeCheck();
-
             GUILayout.Space(10);
-            GUILayout.Label("Package Information", EditorStyles.boldLabel);
+            CreationWizardLayout.DrawSection(
+                "Package Definition",
+                DrawPackageDefinitionSection,
+                () => CreationWizardLayout.DrawSectionHeaderPresetButton(PackageSectionPresetTooltip, ShowPackagePresetMenu));
 
-            _companyName = EditorGUILayout.TextField("Company Name", _companyName);
-            _productName = EditorGUILayout.TextField("Product Name", _productName);
-            _packageName = EditorGUILayout.TextField("Identifier", _packageName);
-            _assemblyName = EditorGUILayout.TextField("Assembly Name", _assemblyName);
-            _namespaceName = EditorGUILayout.TextField("Namespace", _namespaceName);
-            _description = EditorGUILayout.TextField("Description", _description);
-            _author = EditorGUILayout.TextField("Author", _author);
-            _version = EditorGUILayout.TextField("Version", _version);
+            GUILayout.Space(8f);
+            CreationWizardLayout.DrawSection(
+                "Companion Project",
+                DrawCompanionProjectSection,
+                () => CreationWizardLayout.DrawSectionHeaderPresetButton(CompanionProjectPresetTooltip, ShowCompanionProjectPresetMenu));
 
-            _selectedLicenseType = (LicenseType)EditorGUILayout.EnumPopup("License Type", _selectedLicenseType);
-
-            createDocsFolder = EditorGUILayout.Toggle("Create Documentation Folder", createDocsFolder);
-            createSamplesFolder = EditorGUILayout.Toggle("Create Samples Folder", createSamplesFolder);
-            createEditorFolder = EditorGUILayout.Toggle("Create Editor Folder", createEditorFolder);
-            createTestsFolder = EditorGUILayout.Toggle("Create Tests Folder", createTestsFolder);
-
-            GUILayout.Space(10);
-            GUILayout.Label("Dependencies (Optional)", EditorStyles.boldLabel);
-            _dependenciesList.DoLayoutList();
+            GUILayout.Space(8f);
+            CreationWizardLayout.DrawSection("Output", DrawOutputSection);
 
             _serializedObject.ApplyModifiedProperties();
-
-            if (EditorGUI.EndChangeCheck()) {
-                SavePreferences();
-            }
 
             if (GUILayout.Button("Create Package")) {
                 CreatePackageScaffolding();
@@ -278,75 +201,109 @@ namespace Doji.PackageAuthoring.Editor {
         }
 
         /// <summary>
-        /// Loads persisted wizard values for the current Unity project while leaving field defaults intact when none exist.
+        /// Restores only the package-definition portion of the window state from project defaults.
         /// </summary>
-        private void LoadPreferences() {
-            string json = EditorUserSettings.GetConfigValue(PreferencesKey);
-            if (string.IsNullOrEmpty(json)) {
-                return;
-            }
-
-            var preferences = JsonUtility.FromJson<WizardPreferences>(json);
-            if (preferences == null) {
-                return;
-            }
-
-            _companyName = preferences.CompanyName ?? _companyName;
-            _productName = preferences.ProductName ?? _productName;
-            _packageName = preferences.PackageName ?? _packageName;
-            _assemblyName = preferences.AssemblyName ?? _assemblyName;
-            _namespaceName = preferences.NamespaceName ?? _namespaceName;
-            _description = preferences.Description ?? _description;
-            _author = preferences.Author ?? _author;
-            _version = preferences.Version ?? _version;
-            _selectedLicenseType = Enum.IsDefined(typeof(LicenseType), preferences.SelectedLicenseType)
-                ? (LicenseType)preferences.SelectedLicenseType
-                : _selectedLicenseType;
-            _targetLocation = preferences.TargetLocation ?? _targetLocation;
-            createDocsFolder = preferences.CreateDocsFolder;
-            createSamplesFolder = preferences.CreateSamplesFolder;
-            createEditorFolder = preferences.CreateEditorFolder;
-            createTestsFolder = preferences.CreateTestsFolder;
-            if (preferences.Dependencies != null) {
-                _dependencies = CloneDependencies(preferences.Dependencies);
-            }
+        private void ApplyProjectDefaultsToPackageDefinition() {
+            _packageSettings.CopyFrom(PackageAuthoringProjectSettings.instance.PackageDefaults);
         }
 
         /// <summary>
-        /// Persists the current wizard values into project-scoped editor settings so they survive editor restarts.
+        /// Restores only the companion-project portion of the window state from project defaults.
         /// </summary>
-        private void SavePreferences() {
-            var preferences = new WizardPreferences {
-                CompanyName = _companyName,
-                ProductName = _productName,
-                PackageName = _packageName,
-                AssemblyName = _assemblyName,
-                NamespaceName = _namespaceName,
-                Description = _description,
-                Author = _author,
-                Version = _version,
-                SelectedLicenseType = (int)_selectedLicenseType,
-                TargetLocation = _targetLocation,
-                CreateDocsFolder = createDocsFolder,
-                CreateSamplesFolder = createSamplesFolder,
-                CreateEditorFolder = createEditorFolder,
-                CreateTestsFolder = createTestsFolder,
-                Dependencies = CloneDependencies(_dependencies)
-            };
-
-            EditorUserSettings.SetConfigValue(PreferencesKey, JsonUtility.ToJson(preferences));
+        private void ApplyProjectDefaultsToCompanionProject() {
+            _projectSettings.CopyFrom(PackageAuthoringProjectSettings.instance.ProjectDefaults);
         }
 
-        private static List<PackageDependency> CloneDependencies(List<PackageDependency> dependencies) {
-            var clone = new List<PackageDependency>(dependencies.Count);
-            foreach (var dependency in dependencies) {
-                clone.Add(new PackageDependency {
-                    PackageName = dependency.PackageName,
-                    Version = dependency.Version
-                });
-            }
+        /// <summary>
+        /// Restores package defaults and refreshes the window immediately.
+        /// </summary>
+        private void ApplyPackageDefaultsAndRefresh() {
+            ApplyProjectDefaultsToPackageDefinition();
+            GUI.FocusControl(null);
+            _serializedObject?.Update();
+            Repaint();
+        }
 
-            return clone;
+        /// <summary>
+        /// Restores companion-project defaults and refreshes the window immediately.
+        /// </summary>
+        private void ApplyCompanionProjectDefaultsAndRefresh() {
+            ApplyProjectDefaultsToCompanionProject();
+            GUI.FocusControl(null);
+            _serializedObject?.Update();
+            Repaint();
+        }
+
+        /// <summary>
+        /// Applies the package portion of a selected preset and refreshes the window.
+        /// </summary>
+        private void ApplyPackagePresetAndRefresh(PackageAuthoringDefaults preset) {
+            ApplyPackagePreset(preset);
+            GUI.FocusControl(null);
+            _serializedObject?.Update();
+            Repaint();
+        }
+
+        /// <summary>
+        /// Applies the project portion of a selected preset and refreshes the window.
+        /// </summary>
+        private void ApplyProjectPresetAndRefresh(PackageAuthoringDefaults preset) {
+            ApplyProjectPreset(preset);
+            GUI.FocusControl(null);
+            _serializedObject?.Update();
+            Repaint();
+        }
+
+        /// <summary>
+        /// Opens the preset menu scoped to package-definition defaults.
+        /// </summary>
+        private void ShowPackagePresetMenu(Rect buttonRect) {
+            PackageAuthoringPresetMenu.Show(
+                buttonRect,
+                ApplyPackageDefaultsAndRefresh,
+                ApplyPackagePresetAndRefresh);
+        }
+
+        /// <summary>
+        /// Opens the preset menu scoped to companion-project defaults.
+        /// </summary>
+        private void ShowCompanionProjectPresetMenu(Rect buttonRect) {
+            PackageAuthoringPresetMenu.Show(
+                buttonRect,
+                ApplyCompanionProjectDefaultsAndRefresh,
+                ApplyProjectPresetAndRefresh);
+        }
+
+        /// <summary>
+        /// Draws the package-definition section, including optional content toggles and dependencies.
+        /// </summary>
+        private void DrawPackageDefinitionSection() {
+            CreationWizardLayout.DrawPackageSettingsFields(_packageSettings);
+            CreationWizardLayout.DrawPackageContentFields(_packageSettings);
+
+            GUILayout.Space(8f);
+            EditorGUILayout.LabelField("Dependencies", EditorStyles.boldLabel);
+            _dependenciesList.DoLayoutList();
+        }
+
+        /// <summary>
+        /// Draws the companion-project section that controls the generated sample or test project metadata.
+        /// </summary>
+        private void DrawCompanionProjectSection() {
+            CreationWizardLayout.DrawProjectIdentityFields(_projectSettings, productLabel: "Project Name");
+            EditorGUILayout.HelpBox(
+                "These values are applied to the generated companion Unity project and shared where the package uses the same product metadata.",
+                MessageType.None);
+        }
+
+        /// <summary>
+        /// Draws the output paths resolved from the current package and project settings.
+        /// </summary>
+        private void DrawOutputSection() {
+            _projectSettings.TargetLocation = EditorGUILayout.TextField("Target Location", _projectSettings.TargetLocation);
+            EditorGUILayout.LabelField("Repository Root", RootDirectory, EditorStyles.miniLabel);
+            EditorGUILayout.LabelField("Package Folder", PackageDirectory, EditorStyles.miniLabel);
+            EditorGUILayout.LabelField("Companion Project", ProjectDirectory, EditorStyles.miniLabel);
         }
 
         /// <summary>
@@ -357,7 +314,7 @@ namespace Doji.PackageAuthoring.Editor {
             Directory.CreateDirectory(PackageDirectory);
             Directory.CreateDirectory(ProjectDirectory);
 
-            if (createDocsFolder) {
+            if (_packageSettings.CreateDocsFolder) {
                 CreateDocsFolder(RootDirectory);
             }
 
@@ -365,7 +322,7 @@ namespace Doji.PackageAuthoring.Editor {
             CreateProjectStructure();
             CreateRootFiles();
 
-            GitUtility.InitializeRepository(RootDirectory, _packageName);
+            GitUtility.InitializeRepository(RootDirectory, _packageSettings.PackageName);
 
             Debug.Log($"Package scaffolding created successfully at {RootDirectory}");
         }
@@ -376,15 +333,15 @@ namespace Doji.PackageAuthoring.Editor {
         private void CreatePackageFolders() {
             CreateRuntimeFolder();
 
-            if (createSamplesFolder) {
+            if (_packageSettings.CreateSamplesFolder) {
                 CreateSamplesFolder();
             }
 
-            if (createEditorFolder) {
+            if (_packageSettings.CreateEditorFolder) {
                 CreateEditorFolder();
             }
 
-            if (createTestsFolder) {
+            if (_packageSettings.CreateTestsFolder) {
                 Directory.CreateDirectory(Path.Combine(PackageDirectory, "Tests"));
             }
 
@@ -445,14 +402,14 @@ namespace Doji.PackageAuthoring.Editor {
 
             _originalRootNamespace = EditorSettings.projectGenerationRootNamespace;
 
-            PlayerSettings.companyName = _companyName;
-            PlayerSettings.productName = _productName;
-            PlayerSettings.bundleVersion = _version;
+            PlayerSettings.companyName = _projectSettings.CompanyName;
+            PlayerSettings.productName = _projectSettings.ProductName;
+            PlayerSettings.bundleVersion = _projectSettings.Version;
             foreach (var target in NamedTargets) {
-                PlayerSettings.SetApplicationIdentifier(target, _packageName);
+                PlayerSettings.SetApplicationIdentifier(target, _packageSettings.PackageName);
             }
 
-            EditorSettings.projectGenerationRootNamespace = _namespaceName;
+            EditorSettings.projectGenerationRootNamespace = _packageSettings.NamespaceName;
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -492,7 +449,7 @@ namespace Doji.PackageAuthoring.Editor {
             CreateFile(readmePath, GetPackageReadme());
 
             string changelogPath = Path.Combine(path, "CHANGELOG.md");
-            CreateFile(changelogPath, ChangelogTemplate.GetContent(_version));
+            CreateFile(changelogPath, ChangelogTemplate.GetContent(_projectSettings.Version));
         }
 
         /// <summary>
@@ -521,7 +478,7 @@ namespace Doji.PackageAuthoring.Editor {
         /// Creates the runtime assembly definition in the provided folder.
         /// </summary>
         private void CreateRuntimeAsmDef(string path) {
-            string asmDefPath = Path.Combine(path, $"{_assemblyName}.asmdef");
+            string asmDefPath = Path.Combine(path, $"{_packageSettings.AssemblyName}.asmdef");
             CreateFile(asmDefPath, GetRuntimeAsmDef());
         }
 
@@ -529,7 +486,7 @@ namespace Doji.PackageAuthoring.Editor {
         /// Creates the samples assembly definition in the provided folder.
         /// </summary>
         private void CreateSamplesAsmDef(string path) {
-            string asmDefPath = Path.Combine(path, $"{_assemblyName}.asmdef");
+            string asmDefPath = Path.Combine(path, $"{_packageSettings.AssemblyName}.asmdef");
             CreateFile(asmDefPath, GetSamplesAsmDef());
         }
 
@@ -537,7 +494,7 @@ namespace Doji.PackageAuthoring.Editor {
         /// Creates the editor-only assembly definition in the provided folder.
         /// </summary>
         private void CreateEditorAsmDef(string path) {
-            string asmDefPath = Path.Combine(path, $"{_assemblyName}.Editor.asmdef");
+            string asmDefPath = Path.Combine(path, $"{_packageSettings.AssemblyName}.Editor.asmdef");
             CreateFile(asmDefPath, GetEditorAsmDef());
         }
 

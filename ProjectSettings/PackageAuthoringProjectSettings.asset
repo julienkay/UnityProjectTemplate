@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &1
+MonoBehaviour:
+  m_ObjectHideFlags: 53
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a81bb554b1143079fc7f12437185d82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Doji.PackageAuthoring.Editor::Doji.PackageAuthoring.Editor.PackageAuthoringProjectSettings
+  projectDefaults:
+    <CompanyName>k__BackingField: Doji Technologies
+    <ProductName>k__BackingField: MyPackage
+    <Version>k__BackingField: 1.0.0
+    <TargetLocation>k__BackingField: ../
+  packageDefaults:
+    <PackageName>k__BackingField: com.doji.package
+    <AssemblyName>k__BackingField: Doji.Package
+    <NamespaceName>k__BackingField: Doji.AI.PackageNS
+    <Description>k__BackingField: Describe what this package provides.
+    <Author>k__BackingField: Julien Kipp
+    <LicenseType>k__BackingField: 0
+    <CreateDocsFolder>k__BackingField: 1
+    <CreateSamplesFolder>k__BackingField: 0
+    <CreateEditorFolder>k__BackingField: 0
+    <CreateTestsFolder>k__BackingField: 0
+    <Dependencies>k__BackingField:
+    - <PackageName>k__BackingField: com.unity.ai.inference
+      <Version>k__BackingField: 2.3.0

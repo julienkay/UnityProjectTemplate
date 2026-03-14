@@ -1,7 +1,7 @@
 namespace Doji.PackageAuthoring.Editor {
     public partial class PackageCreationWizard {
         public string GetPackageReadme() {
-            return $"# {_packageName}\n\n{_description}";
+            return $"# {_packageSettings.PackageName}\n\n{_packageSettings.Description}";
         }
 
         public string GetRepositoryReadme() {
@@ -9,13 +9,13 @@ namespace Doji.PackageAuthoring.Editor {
   <img src=""https://www.doji-tech.com/favicon.ico"" alt=""doji logo"" title=""Doji"" align=""right"" height=""70"" />
 </a>
 
-# {_productName}
-{_description}
+# {_projectSettings.ProductName}
+{_packageSettings.Description}
 
 [OpenUPM] - [Documentation (coming soon)]
 
-[OpenUPM]: https://openupm.com/packages/{_packageName}
-[Documentation (coming soon)]: https://github.com/julienkay/{_packageName}
+[OpenUPM]: https://openupm.com/packages/{_packageSettings.PackageName}
+[Documentation (coming soon)]: https://github.com/julienkay/{_packageSettings.PackageName}
 ";
         }
     }

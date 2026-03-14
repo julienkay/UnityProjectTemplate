@@ -9,7 +9,7 @@ namespace Doji.PackageAuthoring.Editor {
           ""files"": [
             ""**/*.cs""
           ],
-          ""src"": ""../{_packageName}""
+          ""src"": ""../{_packageSettings.PackageName}""
         }}
       ],
       ""dest"": ""api"",
@@ -73,7 +73,7 @@ namespace Doji.PackageAuthoring.Editor {
   ""metadata"": [
     {{
       ""src"": [
-        {{ ""files"": [ ""{_assemblyName.ToLower()}.csproj"" ], ""src"": ""../projects/{_productName}"" }}
+        {{ ""files"": [ ""{_packageSettings.AssemblyName.ToLower()}.csproj"" ], ""src"": ""../projects/{_projectSettings.ProductName}"" }}
       ],
       ""dest"": ""api"",
       ""includePrivateMembers"": false,
@@ -122,7 +122,7 @@ namespace Doji.PackageAuthoring.Editor {
       ""_disableContribution"": true,
       ""pdf"": true,
       ""pdfTocPage"": true,
-      ""pdfFileName"": ""{_packageName}.pdf""
+      ""pdfFileName"": ""{_packageSettings.PackageName}.pdf""
     }},
     ""fileMetadataFiles"": [],
     ""template"": [
@@ -138,7 +138,7 @@ namespace Doji.PackageAuthoring.Editor {
         }
 
         public string GetFilterConfig() {
-            string ns = _namespaceName.Replace(".", @"\.");
+            string ns = _packageSettings.NamespaceName.Replace(".", @"\.");
             return $@"apiRules:
 - include: # The namespaces to generate
     uidRegex: ^{ns}
@@ -153,9 +153,9 @@ namespace Doji.PackageAuthoring.Editor {
         }
 
         public string GetIndexMD() {
-            return $@"# {_productName}
+            return $@"# {_projectSettings.ProductName}
 
-{_description}.";
+{_packageSettings.Description}.";
         }
 
         public string GetRootToc() {
@@ -168,7 +168,7 @@ namespace Doji.PackageAuthoring.Editor {
         }
 
         public string GetManualToc() {
-            return $@"- name: {_productName}
+            return $@"- name: {_projectSettings.ProductName}
   href: ../index.md
 ";
         }

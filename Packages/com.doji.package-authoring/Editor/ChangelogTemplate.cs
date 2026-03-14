@@ -12,7 +12,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [{version}] - {DateTime.Now:yyyy-MM-dd}
 
-- Initial Release";
+### Added
+
+- Initial release.";
         }
     }
 }

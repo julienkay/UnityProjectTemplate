@@ -7,18 +7,18 @@ namespace Doji.PackageAuthoring.Editor {
     public partial class PackageCreationWizard {
         public string GetPackageManifest() {
             var json = Obj(
-                Prop("name", _packageName),
-                Prop("version", _version),
-                Prop("displayName", _productName),
-                Prop("description", _description),
+                Prop("name", _packageSettings.PackageName),
+                Prop("version", _projectSettings.Version),
+                Prop("displayName", _projectSettings.ProductName),
+                Prop("description", _packageSettings.Description),
                 Prop("author", Obj(
                     Prop("name", "Doji Technologies"),
                     Prop("url", "https://www.doji-tech.com/"),
                     Prop("email", "support@doji-tech.com")
                 )),
-                Prop("documentationUrl", $"https://docs.doji-tech.com/{_packageName}/"),
-                PropIf(createSamplesFolder, "samples", GetSamples()),
-                PropIf(_dependencies.Count > 0, "dependencies", GetDependencies())
+                Prop("documentationUrl", $"https://docs.doji-tech.com/{_packageSettings.PackageName}/"),
+                PropIf(_packageSettings.CreateSamplesFolder, "samples", GetSamples()),
+                PropIf(_packageSettings.Dependencies.Count > 0, "dependencies", GetDependencies())
             );
 
             return json.ToString(Formatting.Indented);
@@ -34,7 +34,7 @@ namespace Doji.PackageAuthoring.Editor {
                 ),
                 Obj(
                     Prop("displayName", "Basic Sample"),
-                    Prop("description", $"Basic example on how to use {_productName}."),
+                    Prop("description", $"Basic example on how to use {_projectSettings.ProductName}."),
                     Prop("path", "Samples~/01-BasicSample")
                 )
             );
@@ -43,7 +43,7 @@ namespace Doji.PackageAuthoring.Editor {
         JObject GetDependencies() {
             var obj = new JObject();
 
-            foreach (var dep in _dependencies.OrderBy(d => d.PackageName)) {
+            foreach (var dep in _packageSettings.Dependencies.OrderBy(d => d.PackageName)) {
                 obj[dep.PackageName] = dep.Version;
             }
 

@@ -8,5 +8,6 @@
     "url": "https://www.doji-tech.com/",
     "email": "support@doji-tech.com"
   },
-  "documentationUrl": "https://docs.doji-tech.com/com.doji.package-authoring/"
+  "documentationUrl": "https://docs.doji-tech.com/com.doji.package-authoring/",
+  "dependencies": {}
 }
