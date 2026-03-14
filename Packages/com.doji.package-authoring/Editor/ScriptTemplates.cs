@@ -1,8 +1,7 @@
 namespace Doji.PackageAuthoring.Editor {
-
-public partial class PackageCreationWizard {
-    public string GetSampleScript() {
-        return $@"using UnityEngine;
+    public partial class PackageCreationWizard {
+        public string GetSampleScript() {
+            return $@"using UnityEngine;
 
 namespace {namespaceName}.Samples {{
 
@@ -10,7 +9,6 @@ namespace {namespaceName}.Samples {{
 
     }}
 }}";
+        }
     }
-}
-
 }

@@ -1,10 +1,9 @@
 using System;
 
 namespace Doji.PackageAuthoring.Editor {
-
-public static class ChangelogTemplate {
-    public static string GetContent(string version) {
-        return $@"# Changelog
+    public static class ChangelogTemplate {
+        public static string GetContent(string version) {
+            return $@"# Changelog
 
 All notable changes to this project will be documented in this file.
 
@@ -14,7 +13,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [{version}] - {DateTime.Now:yyyy-MM-dd}
 
 - Initial Release";
+        }
     }
-}
-
 }

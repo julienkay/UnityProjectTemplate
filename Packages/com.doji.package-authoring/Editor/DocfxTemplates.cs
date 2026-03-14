@@ -1,8 +1,7 @@
 namespace Doji.PackageAuthoring.Editor {
-
-public partial class PackageCreationWizard {
-    public string GetDocfxJson() {
-        return $@"{{
+    public partial class PackageCreationWizard {
+        public string GetDocfxJson() {
+            return $@"{{
   ""metadata"": [
     {{
       ""src"": [
@@ -67,10 +66,10 @@ public partial class PackageCreationWizard {
     ""disableGitFeatures"": false
   }}
 }}";
-    }
+        }
 
-    public string GetDocfxPdfJson() {
-        return $@"{{
+        public string GetDocfxPdfJson() {
+            return $@"{{
   ""metadata"": [
     {{
       ""src"": [
@@ -136,11 +135,11 @@ public partial class PackageCreationWizard {
     ""disableGitFeatures"": false
   }}
 }}";
-    }
+        }
 
-    public string GetFilterConfig() {
-        string ns = namespaceName.Replace(".", @"\.");
-        return $@"apiRules:
+        public string GetFilterConfig() {
+            string ns = namespaceName.Replace(".", @"\.");
+            return $@"apiRules:
 - include: # The namespaces to generate
     uidRegex: ^{ns}
     type: Namespace
@@ -151,28 +150,27 @@ public partial class PackageCreationWizard {
     uidRegex: ^{ns}\.Editor
 - exclude:
     uidRegex: ^{ns}\.Samples";
-    }
+        }
 
-    public string GetIndexMD() {
-        return $@"# {productName}
+        public string GetIndexMD() {
+            return $@"# {productName}
 
 {description}.";
-    }
+        }
 
-    public string GetRootToc() {
-        return $@"- name: Manual
+        public string GetRootToc() {
+            return $@"- name: Manual
   href: manual/
 - name: Scripting API
   href: api/
   homepage: api/index.md
 ";
-    }
+        }
 
-    public string GetManualToc() {
-        return $@"- name: {productName}
+        public string GetManualToc() {
+            return $@"- name: {productName}
   href: ../index.md
 ";
+        }
     }
-}
-
 }

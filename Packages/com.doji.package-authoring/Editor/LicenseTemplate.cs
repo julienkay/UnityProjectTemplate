@@ -1,26 +1,25 @@
 namespace Doji.PackageAuthoring.Editor {
-
-public partial class PackageCreationWizard{
-    public enum LicenseType {
-        MIT,
-        Apache,
-        BSD
-    }
-
-    public string GetLicense() {
-        switch (licenseType) {
-            case LicenseType.Apache:
-                return GetApacheLicense();
-            case LicenseType.BSD:
-                return GetBSDLicense();
-            case LicenseType.MIT:
-            default:
-                return GetMITLicense();
+    public partial class PackageCreationWizard {
+        public enum LicenseType {
+            MIT,
+            Apache,
+            BSD
         }
-    }
 
-    private string GetMITLicense() {
-        return $@"MIT License
+        public string GetLicense() {
+            switch (licenseType) {
+                case LicenseType.Apache:
+                    return GetApacheLicense();
+                case LicenseType.BSD:
+                    return GetBSDLicense();
+                case LicenseType.MIT:
+                default:
+                    return GetMITLicense();
+            }
+        }
+
+        private string GetMITLicense() {
+            return $@"MIT License
 
 Copyright (c) 2025 {author}
 
@@ -42,15 +41,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ";
-    }
+        }
 
-    private static string GetApacheLicense() {
-        throw new System.NotImplementedException();
-    }
+        private static string GetApacheLicense() {
+            throw new System.NotImplementedException();
+        }
 
-    private static string GetBSDLicense() {
-        throw new System.NotImplementedException();
+        private static string GetBSDLicense() {
+            throw new System.NotImplementedException();
+        }
     }
-}
-
 }
