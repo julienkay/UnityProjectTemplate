@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7a81bb554b1143079fc7f12437185d82, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Doji.PackageAuthoring.Editor::Doji.PackageAuthoring.Editor.PackageAuthoringProjectSettings
+  m_EditorClassIdentifier: Doji.PackageAuthoring.Editor.Wizards.Presets::Doji.PackageAuthoring.Editor.Wizards.Presets.PackageAuthoringProjectSettings
   projectDefaults:
     <CompanyName>k__BackingField: Doji Technologies
     <ProductName>k__BackingField: MyPackage
@@ -22,9 +22,9 @@ MonoBehaviour:
     <AssemblyName>k__BackingField: Doji.Package
     <NamespaceName>k__BackingField: Doji.AI.PackageNS
     <Description>k__BackingField: Describe what this package provides.
-    <Author>k__BackingField: Julien Kipp
+    <Author>k__BackingField: Doji Technologies
     <IncludeAuthor>k__BackingField: 1
-    <AuthorUrl>k__BackingField: 
+    <AuthorUrl>k__BackingField: https://www.doji-tech.com/
     <AuthorEmail>k__BackingField: 
     <LicenseType>k__BackingField: 0
     <IncludeMinimumUnityVersion>k__BackingField: 0
