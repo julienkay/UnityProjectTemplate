@@ -16,10 +16,11 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
 
         private string GetMITLicense() {
             string copyrightHolder = _repoSettings.CopyrightHolder;
+            int currentYear = System.DateTime.Now.Year;
 
             return $@"MIT License
 
-Copyright (c) 2025 {copyrightHolder}
+Copyright (c) {currentYear} {copyrightHolder}
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the ""Software""), to deal
