@@ -1,6 +1,8 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using static JsonBuilder;
+using static Doji.PackageAuthoring.Editor.JsonBuilder;
+
+namespace Doji.PackageAuthoring.Editor {
 
 public partial class PackageCreationWizard {
     public string GetProjectManifest() {
@@ -44,4 +46,6 @@ public partial class PackageCreationWizard {
 
         return new JObject(deps.Properties());
     }
+}
+
 }

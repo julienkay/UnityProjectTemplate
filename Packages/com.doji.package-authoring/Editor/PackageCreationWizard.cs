@@ -6,6 +6,8 @@ using UnityEditor.Build;
 using UnityEditorInternal;
 using UnityEngine;
 
+namespace Doji.PackageAuthoring.Editor {
+
 public partial class PackageCreationWizard : EditorWindow {
 
     internal string companyName = "Doji Technologies";
@@ -376,4 +378,6 @@ public partial class PackageCreationWizard : EditorWindow {
             File.Copy(sourceFileName, destFileName, overwrite: false);
         }
     }
+}
+
 }

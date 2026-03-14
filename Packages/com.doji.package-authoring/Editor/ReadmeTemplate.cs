@@ -1,3 +1,5 @@
+namespace Doji.PackageAuthoring.Editor {
+
 public partial class PackageCreationWizard{
     public string GetPackageReadme() {
         return $"# {packageName}\n\n{description}";
@@ -10,10 +12,12 @@ public partial class PackageCreationWizard{
 # {productName}
 {description}
 
-[OpenUPM] · [Documentation (coming soon)]
+[OpenUPM] - [Documentation (coming soon)]
 
 [OpenUPM]: https://openupm.com/packages/{packageName}
 [Documentation (coming soon)]: https://github.com/julienkay/{packageName}
 ";
     }
+}
+
 }

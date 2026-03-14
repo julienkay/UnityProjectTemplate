@@ -1,9 +1,11 @@
+namespace Doji.PackageAuthoring.Editor {
+
 public partial class PackageCreationWizard {
 
     public string GetRuntimeAsmDef() {
         return $@"{{
     ""name"": ""{assemblyName}"",
-    ""rootNamespace"": """",
+    ""rootNamespace"": ""{namespaceName}"",
     ""references"": [],
     ""includePlatforms"": [],
     ""excludePlatforms"": [],
@@ -22,7 +24,7 @@ public partial class PackageCreationWizard {
         // until the project is first opened to generate the .meta file
         return $@"{{
     ""name"": ""{assemblyName}.Samples"",
-    ""rootNamespace"": """",
+    ""rootNamespace"": ""{namespaceName}.Samples"",
     ""references"": [],
     ""includePlatforms"": [],
     ""excludePlatforms"": [],
@@ -35,4 +37,6 @@ public partial class PackageCreationWizard {
     ""noEngineReferences"": false
 }}";
     }
+}
+
 }

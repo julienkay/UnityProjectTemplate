@@ -6,6 +6,8 @@ using UnityEngine;
 using Process = System.Diagnostics.Process;
 using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
 
+namespace Doji.PackageAuthoring.Editor {
+
 public class ProjectCreationWizard : EditorWindow {
 
     internal string companyName = "Doji Technologies";
@@ -146,4 +148,6 @@ public class ProjectCreationWizard : EditorWindow {
 
         Debug.Log($"Opening project in Unity: {projectPath}");
     }
+}
+
 }

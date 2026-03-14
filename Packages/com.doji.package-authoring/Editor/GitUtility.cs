@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.IO;
 
+namespace Doji.PackageAuthoring.Editor {
+
 public static class GitUtility {
 
     public static void InitializeRepository(string workingDirectory, string packageName) {
@@ -52,4 +54,6 @@ public static class GitUtility {
         // Commit with the message "initial commit"
         RunGitCommand("commit -m \"initial commit\"", workingDirectory);
     }
+}
+
 }

@@ -1,3 +1,5 @@
+namespace Doji.PackageAuthoring.Editor {
+
 public partial class PackageCreationWizard {
     public string GetDocfxJson() {
         return $@"{{
@@ -171,4 +173,6 @@ public partial class PackageCreationWizard {
   href: ../index.md
 ";
     }
+}
+
 }

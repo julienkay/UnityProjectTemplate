@@ -1,7 +1,9 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Linq;
-using static JsonBuilder;
+using static Doji.PackageAuthoring.Editor.JsonBuilder;
+
+namespace Doji.PackageAuthoring.Editor {
 
 public partial class PackageCreationWizard {
     public string GetPackageManifest() {
@@ -49,4 +51,6 @@ public partial class PackageCreationWizard {
 
         return obj;
     }
+}
+
 }

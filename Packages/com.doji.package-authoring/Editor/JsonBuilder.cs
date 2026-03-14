@@ -1,5 +1,7 @@
 using Newtonsoft.Json.Linq;
 
+namespace Doji.PackageAuthoring.Editor {
+
 public static class JsonBuilder {
     public static JObject Obj(params JProperty[] props) {
         var o = new JObject();
@@ -28,4 +30,6 @@ public static class JsonBuilder {
     public static JProperty PropIf(bool condition, string name, object value) {
         return condition ? new JProperty(name, value) : null;
     }
+}
+
 }

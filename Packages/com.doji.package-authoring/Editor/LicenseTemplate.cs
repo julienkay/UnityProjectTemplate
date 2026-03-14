@@ -1,3 +1,5 @@
+namespace Doji.PackageAuthoring.Editor {
+
 public partial class PackageCreationWizard{
     public enum LicenseType {
         MIT,
@@ -49,4 +51,6 @@ SOFTWARE.
     private static string GetBSDLicense() {
         throw new System.NotImplementedException();
     }
+}
+
 }
