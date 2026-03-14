@@ -21,7 +21,7 @@ MonoBehaviour:
     <PackageName>k__BackingField: com.doji.package
     <AssemblyName>k__BackingField: Doji.Package
     <NamespaceName>k__BackingField: Doji.AI.PackageNS
-    <Description>k__BackingField: Describe what this package provides.
+    <Description>k__BackingField: A short description for readmes etc
     <CompanyName>k__BackingField: Doji Technologies
     <IncludeAuthor>k__BackingField: 1
     <AuthorUrl>k__BackingField: https://www.doji-tech.com/

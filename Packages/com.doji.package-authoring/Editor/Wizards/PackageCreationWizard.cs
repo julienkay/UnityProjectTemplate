@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditorInternal;
@@ -17,6 +18,10 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
     public partial class PackageCreationWizard : EditorWindow {
         private const string PackageSectionPresetTooltip = "Apply package defaults or a package preset asset.";
         private const string CompanionProjectPresetTooltip = "Apply project defaults or a preset asset to the companion project.";
+        private const float StructurePreviewMinWidth = 360f;
+        private const float StructurePreviewMaxWidth = 640f;
+        private const float StructurePreviewMinHeight = 220f;
+        private const float StructurePreviewMaxHeight = 520f;
         private static readonly string DependenciesField = $"<{nameof(PackageScaffoldSettings.Dependencies)}>k__BackingField";
         private static readonly string PackageDependencyPackageNameField =
             $"<{nameof(PackageDependencyEntry.PackageName)}>k__BackingField";
@@ -27,6 +32,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         [SerializeField] private PackageScaffoldSettings _packageSettings = new();
         [SerializeField] private RepoScaffoldSettings _repoSettings = new();
         [SerializeField] private bool _initializedFromDefaults;
+        [SerializeField] private Vector2 _structurePreviewScrollPosition;
 
         private string RootDirectory => Path.Combine(_projectSettings.TargetLocation, _packageSettings.PackageName);
         private string PackageDirectory => Path.Combine(RootDirectory, _packageSettings.PackageName);
@@ -47,6 +53,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         }
 
         private SerializedObject _serializedObject;
+        private GUIStyle _structurePreviewStyle;
 
         /// <summary>
         /// Opens the package creation wizard.
@@ -186,6 +193,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         private void OnGUI() {
             _serializedObject.Update();
             GUILayout.Space(10);
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.BeginVertical(GUILayout.ExpandWidth(true));
             CreationWizardLayout.DrawSection(
                 "Package Definition",
                 DrawPackageDefinitionSection,
@@ -202,9 +211,15 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
 
             GUILayout.Space(8f);
             CreationWizardLayout.DrawSection("Output", DrawOutputSection);
+            EditorGUILayout.EndVertical();
+
+            GUILayout.Space(10f);
+            DrawStructurePreviewPanel();
+            EditorGUILayout.EndHorizontal();
 
             _serializedObject.ApplyModifiedProperties();
 
+            GUILayout.Space(10f);
             if (GUILayout.Button("Create Package")) {
                 CreatePackageScaffolding();
             }
@@ -322,6 +337,185 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             EditorGUILayout.LabelField("Repository Root", RootDirectory, EditorStyles.miniLabel);
             EditorGUILayout.LabelField("Package Folder", PackageDirectory, EditorStyles.miniLabel);
             EditorGUILayout.LabelField("Companion Project", ProjectDirectory, EditorStyles.miniLabel);
+        }
+
+        /// <summary>
+        /// Draws a live tree preview for the generated repository layout beside the editable fields.
+        /// </summary>
+        private void DrawStructurePreviewPanel() {
+            var previewWidth = Mathf.Clamp(position.width * 0.4f, StructurePreviewMinWidth, StructurePreviewMaxWidth);
+            EditorGUILayout.BeginVertical(GUILayout.Width(previewWidth), GUILayout.ExpandHeight(true));
+            CreationWizardLayout.DrawSection("Project Structure Preview", DrawStructurePreviewContent);
+            EditorGUILayout.EndVertical();
+        }
+
+        /// <summary>
+        /// Renders the generated tree in a scrollable, read-only text area.
+        /// </summary>
+        private void DrawStructurePreviewContent() {
+            _structurePreviewStyle ??= new GUIStyle(EditorStyles.textArea) {
+                wordWrap = false,
+                richText = false
+            };
+
+            var previewText = BuildStructurePreview();
+            var contentHeight = _structurePreviewStyle.CalcHeight(
+                new GUIContent(previewText),
+                Mathf.Max(1f, EditorGUIUtility.currentViewWidth));
+            var previewHeight = Mathf.Clamp(contentHeight + 10f, StructurePreviewMinHeight, StructurePreviewMaxHeight);
+
+            using (var scrollView = new EditorGUILayout.ScrollViewScope(
+                       _structurePreviewScrollPosition,
+                       GUILayout.ExpandWidth(true),
+                       GUILayout.Height(previewHeight))) {
+                _structurePreviewScrollPosition = scrollView.scrollPosition;
+                EditorGUILayout.SelectableLabel(
+                    previewText,
+                    _structurePreviewStyle,
+                    GUILayout.MinHeight(contentHeight),
+                    GUILayout.ExpandWidth(true));
+            }
+        }
+
+        private string BuildStructurePreview() {
+            var root = new PreviewNode(GetLeafNameOrFallback(RootDirectory, _packageSettings.PackageName));
+
+            if (_packageSettings.CreateDocsFolder) {
+                root.Children.Add(BuildDocsPreview());
+            }
+
+            root.Children.Add(BuildPackagePreview());
+            root.Children.Add(new PreviewNode("LICENSE"));
+            root.Children.Add(new PreviewNode("README.md"));
+            root.Children.Add(BuildCompanionProjectPreview());
+
+            var builder = new StringBuilder();
+            AppendTree(builder, root, string.Empty, isLast: true, isRoot: true);
+            return builder.ToString();
+        }
+
+        private PreviewNode BuildDocsPreview() {
+            var docs = new PreviewNode("docs");
+            docs.Children.Add(new PreviewNode(".gitignore"));
+            docs.Children.Add(new PreviewNode("docfx.json"));
+            docs.Children.Add(new PreviewNode("docfx-pdf.json"));
+            docs.Children.Add(new PreviewNode("filterConfig.yml"));
+            docs.Children.Add(new PreviewNode("index.md"));
+
+            var api = new PreviewNode("api");
+            api.Children.Add(new PreviewNode(".gitignore"));
+            api.Children.Add(new PreviewNode("index.md"));
+            docs.Children.Add(api);
+
+            var images = new PreviewNode("images");
+            images.Children.Add(new PreviewNode("doji.png"));
+            images.Children.Add(new PreviewNode("favicon.ico"));
+            docs.Children.Add(images);
+
+            var manual = new PreviewNode("manual");
+            manual.Children.Add(new PreviewNode("toc.yml"));
+            docs.Children.Add(manual);
+
+            var pdf = new PreviewNode("pdf");
+            pdf.Children.Add(new PreviewNode("toc.yml"));
+            docs.Children.Add(pdf);
+
+            docs.Children.Add(new PreviewNode("toc.yml"));
+            return docs;
+        }
+
+        private PreviewNode BuildPackagePreview() {
+            var package = new PreviewNode(_packageSettings.PackageName);
+            package.Children.Add(new PreviewNode("CHANGELOG.md"));
+
+            if (_packageSettings.CreateEditorFolder) {
+                var editor = new PreviewNode("Editor");
+                editor.Children.Add(new PreviewNode($"{_packageSettings.AssemblyName}.Editor.asmdef"));
+                package.Children.Add(editor);
+            }
+
+            package.Children.Add(new PreviewNode("README.md"));
+
+            var runtime = new PreviewNode("Runtime");
+            runtime.Children.Add(new PreviewNode($"{_packageSettings.AssemblyName}.asmdef"));
+            runtime.Children.Add(new PreviewNode("AssemblyInfo.cs"));
+            package.Children.Add(runtime);
+
+            if (_packageSettings.CreateSamplesFolder) {
+                var samples = new PreviewNode("Samples~");
+                samples.Children.Add(new PreviewNode($"{_packageSettings.AssemblyName}.asmdef"));
+                samples.Children.Add(new PreviewNode("00-SharedSampleAssets"));
+
+                var basicSample = new PreviewNode("01-BasicSample");
+                basicSample.Children.Add(new PreviewNode("BasicSample.cs"));
+                samples.Children.Add(basicSample);
+
+                package.Children.Add(samples);
+            }
+
+            if (_packageSettings.CreateTestsFolder) {
+                package.Children.Add(new PreviewNode("Tests"));
+            }
+
+            package.Children.Add(new PreviewNode("package.json"));
+            return package;
+        }
+
+        private PreviewNode BuildCompanionProjectPreview() {
+            var projects = new PreviewNode("projects");
+            var project = new PreviewNode(_projectSettings.ProductName);
+            if (File.Exists(Path.Combine(Directory.GetCurrentDirectory(), ".gitignore"))) {
+                project.Children.Add(new PreviewNode(".gitignore"));
+            }
+
+            project.Children.Add(new PreviewNode("Assets"));
+
+            var packages = new PreviewNode("Packages");
+            packages.Children.Add(new PreviewNode("manifest.json"));
+            if (File.Exists(Path.Combine(Directory.GetCurrentDirectory(), "Packages", "packages-lock.json"))) {
+                packages.Children.Add(new PreviewNode("packages-lock.json"));
+            }
+
+            project.Children.Add(packages);
+
+            project.Children.Add(new PreviewNode("ProjectSettings"));
+            projects.Children.Add(project);
+            return projects;
+        }
+
+        private static string GetLeafNameOrFallback(string path, string fallback) {
+            if (string.IsNullOrWhiteSpace(path)) {
+                return fallback;
+            }
+
+            path = path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            return string.IsNullOrWhiteSpace(path) ? fallback : Path.GetFileName(path);
+        }
+
+        private static void AppendTree(StringBuilder builder, PreviewNode node, string indent, bool isLast, bool isRoot = false) {
+            if (isRoot) {
+                builder.AppendLine(node.Name);
+            }
+            else {
+                builder.Append(indent);
+                builder.Append(isLast ? "└── " : "├── ");
+                builder.AppendLine(node.Name);
+            }
+
+            var childIndent = isRoot ? string.Empty : indent + (isLast ? "    " : "│   ");
+            for (var i = 0; i < node.Children.Count; i++) {
+                AppendTree(builder, node.Children[i], childIndent, i == node.Children.Count - 1);
+            }
+        }
+
+        private sealed class PreviewNode {
+            public PreviewNode(string name) {
+                Name = string.IsNullOrWhiteSpace(name) ? "(unnamed)" : name;
+            }
+
+            public string Name { get; }
+
+            public List<PreviewNode> Children { get; } = new();
         }
 
         /// <summary>
