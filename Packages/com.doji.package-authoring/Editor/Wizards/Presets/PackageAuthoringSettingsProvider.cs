@@ -52,16 +52,16 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
 
             EditorGUILayout.Space(8f);
             EditorGUI.BeginChangeCheck();
-            PackageAuthoringProfileGui.DrawPackageSettingsSection(
+            PackageAuthoringGui.DrawPackageSettingsSection(
                 serializedSettings,
                 "Package Defaults",
                 overflowMode: UnityRegistryPackageAutocompleteField.SuggestionOverflowMode.Scroll);
 
             EditorGUILayout.Space(8f);
-            PackageAuthoringProfileGui.DrawRepoSettingsSection(serializedSettings, "Repo Defaults");
+            PackageAuthoringGui.DrawRepoSettingsSection(serializedSettings, "Repo Defaults");
 
             EditorGUILayout.Space(8f);
-            PackageAuthoringProfileGui.DrawProjectSettingsSection(
+            PackageAuthoringGui.DrawProjectSettingsSection(
                 serializedSettings,
                 "Project Defaults",
                 productLabel: "Project Name",

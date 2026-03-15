@@ -3,17 +3,43 @@ using UnityEditor;
 using UnityEngine;
 using Doji.PackageAuthoring.Editor.Wizards.Models;
 using Doji.PackageAuthoring.Editor.Wizards.PackageSearch;
-using UnityEngine;
 
 namespace Doji.PackageAuthoring.Editor.Wizards {
     /// <summary>
-    /// Shared top-level IMGUI rendering for serialized <see cref="PackageAuthoringProfile"/> instances.
+    /// Shared IMGUI composition for package authoring profiles and adjacent section-based editor UI.
     /// </summary>
-    internal static class PackageAuthoringProfileGui {
+    internal static class PackageAuthoringGui {
         private static readonly string ProjectDefaultsField = $"<{nameof(PackageAuthoringProfile.ProjectDefaults)}>k__BackingField";
         private static readonly string PackageDefaultsField = $"<{nameof(PackageAuthoringProfile.PackageDefaults)}>k__BackingField";
         private static readonly string RepoDefaultsField = $"<{nameof(PackageAuthoringProfile.RepoDefaults)}>k__BackingField";
         private static readonly string TargetLocationField = $"<{nameof(ProjectSettings.TargetLocation)}>k__BackingField";
+
+        /// <summary>
+        /// Draws a boxed section with a bold header and body content.
+        /// </summary>
+        public static void DrawSection(string title, Action drawContent, Action drawHeaderAction = null) {
+            EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
+            drawHeaderAction?.Invoke();
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.Space(3f);
+            drawContent?.Invoke();
+            EditorGUILayout.EndVertical();
+        }
+
+        /// <summary>
+        /// Draws the preset icon used in section headers.
+        /// </summary>
+        public static void DrawSectionHeaderPresetButton(string iconTooltip, Action<Rect> onPresetClicked) {
+            if (GUILayout.Button(
+                    EditorGUIUtility.IconContent("d_Preset.Context", iconTooltip),
+                    EditorStyles.iconButton,
+                    GUILayout.Width(24f),
+                    GUILayout.Height(20f))) {
+                onPresetClicked?.Invoke(GUILayoutUtility.GetLastRect());
+            }
+        }
 
         /// <summary>
         /// Finds the serialized project-defaults block on the provided profile object.
@@ -47,7 +73,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             Action drawHeaderAction = null,
             Action drawFooter = null) {
             using var _ = PackageSettingsDrawerContext.Push(overflowMode);
-            CreationWizardLayout.DrawSection(title, () => {
+            DrawSection(title, () => {
                 EditorGUILayout.PropertyField(
                     FindPackageDefaultsProperty(profileObject),
                     GUIContent.none,
@@ -64,7 +90,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             string title,
             Action drawHeaderAction = null,
             Action drawFooter = null) {
-            CreationWizardLayout.DrawSection(title, () => {
+            DrawSection(title, () => {
                 EditorGUILayout.PropertyField(
                     FindRepoDefaultsProperty(profileObject),
                     GUIContent.none,
@@ -84,7 +110,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             Action drawHeaderAction = null,
             Action drawFooter = null) {
             using var _ = ProjectSettingsDrawerContext.Push(productLabel, includeTargetLocation);
-            CreationWizardLayout.DrawSection(title, () => {
+            DrawSection(title, () => {
                 EditorGUILayout.PropertyField(
                     FindProjectDefaultsProperty(profileObject),
                     GUIContent.none,

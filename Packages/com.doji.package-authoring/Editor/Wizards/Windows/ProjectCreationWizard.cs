@@ -86,7 +86,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             DrawProjectSettingsSection();
 
             GUILayout.Space(8f);
-            CreationWizardLayout.DrawSection("Output", DrawOutputSection);
+            PackageAuthoringGui.DrawSection("Output", DrawOutputSection);
 
             _defaultsSerializedObject.ApplyModifiedProperties();
             _windowSerializedObject.ApplyModifiedProperties();
@@ -161,12 +161,12 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// Draws editable project identity fields specific to standalone project creation.
         /// </summary>
         private void DrawProjectSettingsSection() {
-            PackageAuthoringProfileGui.DrawProjectSettingsSection(
+            PackageAuthoringGui.DrawProjectSettingsSection(
                 _defaultsSerializedObject,
                 "Project Settings",
                 productLabel: "Project Name",
                 includeTargetLocation: false,
-                drawHeaderAction: () => CreationWizardLayout.DrawSectionHeaderPresetButton(
+                drawHeaderAction: () => PackageAuthoringGui.DrawSectionHeaderPresetButton(
                     ProjectSectionPresetTooltip,
                     ShowPresetMenu),
                 drawFooter: () => EditorGUILayout.PropertyField(
@@ -178,17 +178,17 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// Draws the destination fields and resolved output folder preview.
         /// </summary>
         private void DrawOutputSection() {
-            PackageAuthoringProfileGui.DrawProjectOutputField(_defaultsSerializedObject);
+            PackageAuthoringGui.DrawProjectOutputField(_defaultsSerializedObject);
             EditorGUILayout.LabelField("Project Folder", PreviewProjectDirectory, EditorStyles.miniLabel);
         }
 
         private string PreviewProjectDirectory => Path.Combine(CurrentTargetLocation, CurrentProductName);
         private string CurrentProductName => GetSerializedString(
-            PackageAuthoringProfileGui.FindProjectDefaultsProperty(_defaultsSerializedObject),
+            PackageAuthoringGui.FindProjectDefaultsProperty(_defaultsSerializedObject),
             ProductNameField,
             ProjectSettings.ProductName);
         private string CurrentTargetLocation => GetSerializedString(
-            PackageAuthoringProfileGui.FindProjectDefaultsProperty(_defaultsSerializedObject),
+            PackageAuthoringGui.FindProjectDefaultsProperty(_defaultsSerializedObject),
             TargetLocationField,
             ProjectSettings.TargetLocation);
 

@@ -15,13 +15,13 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
             serializedObject.Update();
 
             EditorGUILayout.Space(4f);
-            PackageAuthoringProfileGui.DrawPackageSettingsSection(serializedObject, "Package Defaults");
+            PackageAuthoringGui.DrawPackageSettingsSection(serializedObject, "Package Defaults");
 
             EditorGUILayout.Space(8f);
-            PackageAuthoringProfileGui.DrawRepoSettingsSection(serializedObject, "Repo Defaults");
+            PackageAuthoringGui.DrawRepoSettingsSection(serializedObject, "Repo Defaults");
 
             EditorGUILayout.Space(8f);
-            PackageAuthoringProfileGui.DrawProjectSettingsSection(
+            PackageAuthoringGui.DrawProjectSettingsSection(
                 serializedObject,
                 "Project Defaults",
                 productLabel: "Project Name",

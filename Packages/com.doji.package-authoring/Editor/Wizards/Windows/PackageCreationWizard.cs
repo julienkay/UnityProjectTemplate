@@ -161,7 +161,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             DrawCompanionProjectSection();
 
             GUILayout.Space(8f);
-            CreationWizardLayout.DrawSection("Output", DrawOutputSection);
+            PackageAuthoringGui.DrawSection("Output", DrawOutputSection);
             EditorGUILayout.EndVertical();
 
             GUILayout.Space(10f);
@@ -260,10 +260,10 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// Draws the package-definition section, including optional content toggles and dependencies.
         /// </summary>
         private void DrawPackageDefinitionSection() {
-            PackageAuthoringProfileGui.DrawPackageSettingsSection(
+            PackageAuthoringGui.DrawPackageSettingsSection(
                 _defaultsSerializedObject,
                 "Package Definition",
-                drawHeaderAction: () => CreationWizardLayout.DrawSectionHeaderPresetButton(
+                drawHeaderAction: () => PackageAuthoringGui.DrawSectionHeaderPresetButton(
                     PackageSectionPresetTooltip,
                     ShowPackagePresetMenu));
         }
@@ -272,19 +272,19 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// Draws the repository-level section that controls generated root metadata such as the license file.
         /// </summary>
         private void DrawRepoSettingsSection() {
-            PackageAuthoringProfileGui.DrawRepoSettingsSection(_defaultsSerializedObject, "Repo Settings");
+            PackageAuthoringGui.DrawRepoSettingsSection(_defaultsSerializedObject, "Repo Settings");
         }
 
         /// <summary>
         /// Draws the companion-project section that controls the generated sample or test project metadata.
         /// </summary>
         private void DrawCompanionProjectSection() {
-            PackageAuthoringProfileGui.DrawProjectSettingsSection(
+            PackageAuthoringGui.DrawProjectSettingsSection(
                 _defaultsSerializedObject,
                 "Companion Project",
                 productLabel: "Project Name",
                 includeTargetLocation: false,
-                drawHeaderAction: () => CreationWizardLayout.DrawSectionHeaderPresetButton(
+                drawHeaderAction: () => PackageAuthoringGui.DrawSectionHeaderPresetButton(
                     CompanionProjectPresetTooltip,
                     ShowCompanionProjectPresetMenu),
                 drawFooter: DrawCompanionProjectFooter);
@@ -303,7 +303,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// Draws the output paths resolved from the current package and project settings.
         /// </summary>
         private void DrawOutputSection() {
-            PackageAuthoringProfileGui.DrawProjectOutputField(_defaultsSerializedObject);
+            PackageAuthoringGui.DrawProjectOutputField(_defaultsSerializedObject);
             EditorGUILayout.LabelField("Repository Root", PreviewRootDirectory, EditorStyles.miniLabel);
             EditorGUILayout.LabelField("Package Folder", PreviewPackageDirectory, EditorStyles.miniLabel);
             EditorGUILayout.LabelField("Companion Project", PreviewProjectDirectory, EditorStyles.miniLabel);
@@ -315,7 +315,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         private void DrawStructurePreviewPanel() {
             var previewWidth = Mathf.Clamp(position.width * 0.4f, StructurePreviewMinWidth, StructurePreviewMaxWidth);
             EditorGUILayout.BeginVertical(GUILayout.Width(previewWidth), GUILayout.ExpandHeight(true));
-            CreationWizardLayout.DrawSection("Project Structure Preview", DrawStructurePreviewContent);
+            PackageAuthoringGui.DrawSection("Project Structure Preview", DrawStructurePreviewContent);
             EditorGUILayout.EndVertical();
         }
 
@@ -466,35 +466,35 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         private string PreviewPackageDirectory => Path.Combine(PreviewRootDirectory, CurrentPackageName);
         private string PreviewProjectDirectory => Path.Combine(PreviewRootDirectory, "projects", CurrentProductName);
         private string CurrentPackageName => GetSerializedString(
-            PackageAuthoringProfileGui.FindPackageDefaultsProperty(_defaultsSerializedObject),
+            PackageAuthoringGui.FindPackageDefaultsProperty(_defaultsSerializedObject),
             PackageNameField,
             PackageSettings.PackageName);
         private string CurrentAssemblyName => GetSerializedString(
-            PackageAuthoringProfileGui.FindPackageDefaultsProperty(_defaultsSerializedObject),
+            PackageAuthoringGui.FindPackageDefaultsProperty(_defaultsSerializedObject),
             AssemblyNameField,
             PackageSettings.AssemblyName);
         private string CurrentProductName => GetSerializedString(
-            PackageAuthoringProfileGui.FindProjectDefaultsProperty(_defaultsSerializedObject),
+            PackageAuthoringGui.FindProjectDefaultsProperty(_defaultsSerializedObject),
             ProductNameField,
             ProjectSettings.ProductName);
         private string CurrentTargetLocation => GetSerializedString(
-            PackageAuthoringProfileGui.FindProjectDefaultsProperty(_defaultsSerializedObject),
+            PackageAuthoringGui.FindProjectDefaultsProperty(_defaultsSerializedObject),
             TargetLocationField,
             ProjectSettings.TargetLocation);
         private bool CurrentCreateDocsFolder => GetSerializedBool(
-            PackageAuthoringProfileGui.FindPackageDefaultsProperty(_defaultsSerializedObject),
+            PackageAuthoringGui.FindPackageDefaultsProperty(_defaultsSerializedObject),
             CreateDocsFolderField,
             PackageSettings.CreateDocsFolder);
         private bool CurrentCreateSamplesFolder => GetSerializedBool(
-            PackageAuthoringProfileGui.FindPackageDefaultsProperty(_defaultsSerializedObject),
+            PackageAuthoringGui.FindPackageDefaultsProperty(_defaultsSerializedObject),
             CreateSamplesFolderField,
             PackageSettings.CreateSamplesFolder);
         private bool CurrentCreateEditorFolder => GetSerializedBool(
-            PackageAuthoringProfileGui.FindPackageDefaultsProperty(_defaultsSerializedObject),
+            PackageAuthoringGui.FindPackageDefaultsProperty(_defaultsSerializedObject),
             CreateEditorFolderField,
             PackageSettings.CreateEditorFolder);
         private bool CurrentCreateTestsFolder => GetSerializedBool(
-            PackageAuthoringProfileGui.FindPackageDefaultsProperty(_defaultsSerializedObject),
+            PackageAuthoringGui.FindPackageDefaultsProperty(_defaultsSerializedObject),
             CreateTestsFolderField,
             PackageSettings.CreateTestsFolder);
 
