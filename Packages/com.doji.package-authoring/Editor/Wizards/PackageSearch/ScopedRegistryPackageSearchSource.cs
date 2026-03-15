@@ -5,6 +5,11 @@ using UnityEditor;
 using UnityEngine.Networking;
 
 namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
+    /// <summary>
+    /// Queries one scoped npm-compatible registry declared in the project manifest and exposes its latest package versions.
+    /// Unity package manager does not surface arbitrary scoped registries through the same API as the Unity registry,
+    /// so this source polls the registry's <c>/-/all</c> endpoint directly.
+    /// </summary>
     internal sealed class ScopedRegistryPackageSearchSource : IPackageSearchSource {
         private readonly ScopedRegistryManifestReader.ScopedRegistryDefinition _registry;
         private readonly List<PackageSearchEntry> _entries = new();
@@ -18,11 +23,17 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
         public string StatusMessage { get; private set; }
         public IReadOnlyList<PackageSearchEntry> Entries => _entries;
 
+        /// <summary>
+        /// Binds the source to one scoped registry definition read from <c>Packages/manifest.json</c>.
+        /// </summary>
         public ScopedRegistryPackageSearchSource(ScopedRegistryManifestReader.ScopedRegistryDefinition registry) {
             _registry = registry;
             StatusMessage = $"Loading {_registry.Name} registry packages...";
         }
 
+        /// <summary>
+        /// Starts an asynchronous registry fetch unless one is already in flight.
+        /// </summary>
         public void Refresh() {
             if (IsLoading) {
                 return;
@@ -37,6 +48,9 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
             Changed?.Invoke();
         }
 
+        /// <summary>
+        /// Unhooks the editor polling callback and disposes any active request.
+        /// </summary>
         public void Dispose() {
             EditorApplication.update -= PollRequest;
             _request?.Dispose();

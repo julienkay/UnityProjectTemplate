@@ -6,6 +6,10 @@ using UnityEditor.PackageManager.Requests;
 using PackageManagerPackageInfo = UnityEditor.PackageManager.PackageInfo;
 
 namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
+    /// <summary>
+    /// Queries the Unity package manager for packages available from the configured Unity registry sources.
+    /// This is kept separate from scoped registry lookup because Unity exposes it through the package manager API.
+    /// </summary>
     internal sealed class UnityPackageSearchSource : IPackageSearchSource {
         private readonly List<PackageSearchEntry> _entries = new();
 
@@ -17,6 +21,9 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
         public string StatusMessage { get; private set; } = "Loading Unity registry packages...";
         public IReadOnlyList<PackageSearchEntry> Entries => _entries;
 
+        /// <summary>
+        /// Starts a package-manager search unless a previous request is still pending.
+        /// </summary>
         public void Refresh() {
             if (IsLoading) {
                 return;
@@ -28,6 +35,9 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
             Changed?.Invoke();
         }
 
+        /// <summary>
+        /// Unhooks the editor polling callback used to observe the asynchronous search request.
+        /// </summary>
         public void Dispose() {
             EditorApplication.update -= PollSearchRequest;
         }
