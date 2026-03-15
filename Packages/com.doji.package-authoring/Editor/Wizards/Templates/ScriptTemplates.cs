@@ -1,11 +1,14 @@
-namespace Doji.PackageAuthoring.Editor.Wizards {
-    public partial class PackageCreationWizard {
-        public string GetSampleScript() {
+namespace Doji.PackageAuthoring.Editor.Wizards.Templates {
+    /// <summary>
+    /// Builds starter scripts included in generated samples.
+    /// </summary>
+    public static class ScriptTemplates {
+        public static string GetSampleScript(PackageContext ctx) {
             return $@"using UnityEngine;
 
-namespace {_packageSettings.NamespaceName}.Samples {{
+namespace {ctx.Package.NamespaceName}.Samples {{
 
-    public class {_projectSettings.ProductName.Replace(" ", string.Empty)}_BasicSample : MonoBehaviour {{
+    public class {ctx.Project.ProductName.Replace(" ", string.Empty)}_BasicSample : MonoBehaviour {{
 
     }}
 }}";

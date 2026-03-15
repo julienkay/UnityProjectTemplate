@@ -1,21 +1,24 @@
 using Doji.PackageAuthoring.Editor.Wizards.Models;
 
-namespace Doji.PackageAuthoring.Editor.Wizards {
-    public partial class PackageCreationWizard {
-        public string GetLicense() {
-            switch (_repoSettings.LicenseType) {
+namespace Doji.PackageAuthoring.Editor.Wizards.Templates {
+    /// <summary>
+    /// Builds repository license text from the selected license preset.
+    /// </summary>
+    public static class LicenseTemplate {
+        public static string GetLicense(PackageContext ctx) {
+            switch (ctx.Repo.LicenseType) {
                 case LicenseType.Apache:
                     return GetApacheLicense();
                 case LicenseType.BSD:
                     return GetBSDLicense();
                 case LicenseType.MIT:
                 default:
-                    return GetMITLicense();
+                    return GetMITLicense(ctx);
             }
         }
 
-        private string GetMITLicense() {
-            string copyrightHolder = _repoSettings.CopyrightHolder;
+        private static string GetMITLicense(PackageContext ctx) {
+            string copyrightHolder = ctx.Repo.CopyrightHolder;
             int currentYear = System.DateTime.Now.Year;
 
             return $@"MIT License

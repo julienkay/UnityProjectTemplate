@@ -118,7 +118,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
                 return;
             }
 
-            List<PackageSearchEntry> matches = _cache.GetMatches(packageNameProperty.stringValue, MaxVisibleSuggestions);
+            List<PackageSearchEntry>
+                matches = _cache.GetMatches(packageNameProperty.stringValue, MaxVisibleSuggestions);
             if (matches.Count == 0) {
                 return;
             }
@@ -226,11 +227,14 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
                 badgeRect.xMin - rect.x - 10f,
                 rect.height);
 
-            string versionLabel = string.IsNullOrWhiteSpace(packageInfo.Version) ? "version unavailable" : packageInfo.Version;
+            string versionLabel = string.IsNullOrWhiteSpace(packageInfo.Version)
+                ? "version unavailable"
+                : packageInfo.Version;
             EditorGUI.LabelField(textRect, $"{packageInfo.PackageName}  {versionLabel}", EditorStyles.miniLabel);
             DrawSourceBadge(badgeRect, packageInfo.SourceName);
 
-            if (currentEvent.type == EventType.MouseDown && currentEvent.button == 0 && rect.Contains(currentEvent.mousePosition)) {
+            if (currentEvent.type == EventType.MouseDown && currentEvent.button == 0 &&
+                rect.Contains(currentEvent.mousePosition)) {
                 currentEvent.Use();
                 GUI.changed = true;
                 return true;
@@ -291,7 +295,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
             }
         }
 
-        private void TryApplySuggestedVersion(SerializedProperty packageNameProperty, SerializedProperty versionProperty) {
+        private void TryApplySuggestedVersion(SerializedProperty packageNameProperty,
+            SerializedProperty versionProperty) {
             PackageSearchEntry? exactMatch = _cache.FindExact(packageNameProperty.stringValue);
             if (!exactMatch.HasValue || string.IsNullOrWhiteSpace(exactMatch.Value.Version)) {
                 return;

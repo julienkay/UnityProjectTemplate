@@ -6,7 +6,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Models {
     /// Shared project-facing settings used by both the standalone and companion project wizards.
     /// </summary>
     [Serializable]
-    public class ProjectScaffoldSettings {
+    public class ProjectSettings {
         /// <summary>
         /// Company or organization name written into generated Unity project settings.
         /// </summary>
@@ -35,7 +35,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Models {
         /// Copies all project-facing values from another settings instance.
         /// </summary>
         /// <param name="other">The source settings to copy from.</param>
-        public void CopyFrom(ProjectScaffoldSettings other) {
+        public void CopyFrom(ProjectSettings other) {
             if (other == null) {
                 return;
             }

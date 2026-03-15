@@ -1,29 +1,32 @@
 using System;
 
-namespace Doji.PackageAuthoring.Editor.Wizards {
-    public partial class PackageCreationWizard {
-        public string GetAssemblyInfo() {
-            string copyrightHolder = GetCopyrightHolder();
+namespace Doji.PackageAuthoring.Editor.Wizards.Templates {
+    /// <summary>
+    /// Builds assembly metadata for the generated runtime assembly.
+    /// </summary>
+    public static class AssemblyInfoTemplate {
+        public static string GetAssemblyInfo(PackageContext ctx) {
+            string copyrightHolder = GetCopyrightHolder(ctx);
 
             return $@"using System.Reflection;
 
-[assembly: AssemblyTitle(""{_packageSettings.AssemblyName}"")]
-[assembly: AssemblyDescription(""{_packageSettings.Description}"")]
-[assembly: AssemblyCompany(""{_projectSettings.CompanyName}"")]
-[assembly: AssemblyProduct(""{_packageSettings.AssemblyName}"")]
+[assembly: AssemblyTitle(""{ctx.Package.AssemblyName}"")]
+[assembly: AssemblyDescription(""{ctx.Package.Description}"")]
+[assembly: AssemblyCompany(""{ctx.Project.CompanyName}"")]
+[assembly: AssemblyProduct(""{ctx.Package.AssemblyName}"")]
 [assembly: AssemblyCopyright(""Copyright (c) {copyrightHolder} {DateTime.Now.Year}"")]
 
-[assembly: AssemblyVersion(""{_projectSettings.Version}.0"")]
-[assembly: AssemblyFileVersion(""{_projectSettings.Version}.0"")]
-[assembly: AssemblyInformationalVersion(""{_projectSettings.Version}"")]
+[assembly: AssemblyVersion(""{ctx.Project.Version}.0"")]
+[assembly: AssemblyFileVersion(""{ctx.Project.Version}.0"")]
+[assembly: AssemblyInformationalVersion(""{ctx.Project.Version}"")]
 ";
         }
 
         /// <summary>
         /// Name used in generated copyright notices.
         /// </summary>
-        private string GetCopyrightHolder() {
-            return _repoSettings.CopyrightHolder;
+        private static string GetCopyrightHolder(PackageContext ctx) {
+            return ctx.Repo.CopyrightHolder;
         }
     }
 }

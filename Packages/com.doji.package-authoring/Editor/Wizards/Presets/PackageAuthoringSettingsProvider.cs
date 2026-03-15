@@ -8,7 +8,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
     /// Registers and renders the Project Settings page for package authoring defaults.
     /// </summary>
     internal static class PackageAuthoringSettingsProvider {
-        private static readonly string DependenciesField = $"<{nameof(PackageScaffoldSettings.Dependencies)}>k__BackingField";
+        private static readonly string DependenciesField = $"<{nameof(PackageSettings.Dependencies)}>k__BackingField";
 
         /// <summary>
         /// Creates the settings provider shown under <c>Project/Doji/Package Authoring</c>.
@@ -28,7 +28,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
         /// </summary>
         private static void DrawTitleBarGui() {
             if (!GUILayout.Button(
-                    EditorGUIUtility.IconContent("d_Preset.Context", "Apply a preset asset to the current project defaults."),
+                    EditorGUIUtility.IconContent("d_Preset.Context",
+                        "Apply a preset asset to the current project defaults."),
                     EditorStyles.iconButton,
                     GUILayout.Width(24f),
                     GUILayout.Height(20f))) {
@@ -49,7 +50,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
             var settings = PackageAuthoringProjectSettings.instance;
             using var serializedSettings = new SerializedObject(settings);
             SerializedProperty packageDefaultsProperty = serializedSettings.FindProperty("packageDefaults");
-            SerializedProperty packageDependenciesProperty = packageDefaultsProperty.FindPropertyRelative(DependenciesField);
+            SerializedProperty packageDependenciesProperty =
+                packageDefaultsProperty.FindPropertyRelative(DependenciesField);
             serializedSettings.Update();
 
             EditorGUILayout.Space(8f);

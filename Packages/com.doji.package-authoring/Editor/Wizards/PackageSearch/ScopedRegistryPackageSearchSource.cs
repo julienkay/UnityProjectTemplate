@@ -81,8 +81,10 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
                     continue;
                 }
 
-                string displayName = packageToken.SelectToken($"versions['{latestVersion}'].displayName")?.Value<string>();
-                string description = packageToken.SelectToken($"versions['{latestVersion}'].description")?.Value<string>()
+                string displayName = packageToken.SelectToken($"versions['{latestVersion}'].displayName")
+                    ?.Value<string>();
+                string description =
+                    packageToken.SelectToken($"versions['{latestVersion}'].description")?.Value<string>()
                     ?? packageToken.Value<string>("description");
 
                 _entries.Add(new PackageSearchEntry(

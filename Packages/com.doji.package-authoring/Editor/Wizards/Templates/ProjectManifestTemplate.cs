@@ -2,20 +2,23 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using static Doji.PackageAuthoring.Editor.Utilities.JsonBuilder;
 
-namespace Doji.PackageAuthoring.Editor.Wizards {
-    public partial class PackageCreationWizard {
-        public string GetProjectManifest() {
+namespace Doji.PackageAuthoring.Editor.Wizards.Templates {
+    /// <summary>
+    /// Builds the companion project's Unity manifest.
+    /// </summary>
+    public static class ProjectManifestTemplate {
+        public static string GetProjectManifest(PackageContext ctx) {
             var json = Obj(
-                Prop("dependencies", GetProjectDependencies()),
-                PropIf(_packageSettings.CreateTestsFolder, "testables", Arr(_packageSettings.PackageName))
+                Prop("dependencies", GetProjectDependencies(ctx)),
+                PropIf(ctx.Package.CreateTestsFolder, "testables", Arr(ctx.Package.PackageName))
             );
 
             return json.ToString(Formatting.Indented);
         }
 
-        JObject GetProjectDependencies() {
+        private static JObject GetProjectDependencies(PackageContext ctx) {
             var deps = new JObject {
-                [_packageSettings.PackageName] = $"file:../../../{_packageSettings.PackageName}",
+                [ctx.Package.PackageName] = $"file:../../../{ctx.Package.PackageName}",
                 ["com.unity.ide.visualstudio"] = "2.0.27",
                 ["com.unity.ugui"] = "2.0.0",
                 ["com.unity.modules.ai"] = "1.0.0",

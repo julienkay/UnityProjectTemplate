@@ -118,7 +118,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
         }
 
         private void BuildSources() {
-            foreach (var registry in ScopedRegistryManifestReader.ReadFromProjectManifest(Path.Combine("Packages", "manifest.json"))) {
+            foreach (var registry in ScopedRegistryManifestReader.ReadFromProjectManifest(Path.Combine("Packages",
+                         "manifest.json"))) {
                 var source = new ScopedRegistryPackageSearchSource(registry);
                 source.Changed += HandleSourceChanged;
                 _sources.Add(source);

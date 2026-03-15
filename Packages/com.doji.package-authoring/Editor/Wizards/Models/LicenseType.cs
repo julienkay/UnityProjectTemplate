@@ -7,10 +7,12 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Models {
         /// Generates an MIT license file.
         /// </summary>
         MIT,
+
         /// <summary>
         /// Generates an Apache 2.0 license file.
         /// </summary>
         Apache,
+
         /// <summary>
         /// Generates a BSD-style license file.
         /// </summary>

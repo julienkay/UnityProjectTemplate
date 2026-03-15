@@ -57,7 +57,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// Common project identity fields shared by the project and package wizards.
         /// </summary>
         public static void DrawProjectIdentityFields(
-            ProjectScaffoldSettings projectSettings,
+            ProjectSettings projectSettings,
             string productLabel = "Product Name") {
             projectSettings.CompanyName = EditorGUILayout.TextField("Company Name", projectSettings.CompanyName);
             projectSettings.ProductName = EditorGUILayout.TextField(productLabel, projectSettings.ProductName);
@@ -67,25 +67,29 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// <summary>
         /// Core package metadata fields shown in presets, project settings, and the package wizard.
         /// </summary>
-        public static void DrawPackageSettingsFields(PackageScaffoldSettings packageSettings) {
+        public static void DrawPackageSettingsFields(PackageSettings packageSettings) {
             packageSettings.PackageName = EditorGUILayout.TextField("Identifier", packageSettings.PackageName);
             packageSettings.AssemblyName = EditorGUILayout.TextField("Assembly Name", packageSettings.AssemblyName);
             packageSettings.NamespaceName = EditorGUILayout.TextField("Namespace", packageSettings.NamespaceName);
             packageSettings.Description = EditorGUILayout.TextField("Description", packageSettings.Description);
             packageSettings.CompanyName = EditorGUILayout.TextField("Company Name", packageSettings.CompanyName);
-            packageSettings.IncludeAuthor = EditorGUILayout.Toggle("Include Author Metadata", packageSettings.IncludeAuthor);
+            packageSettings.IncludeAuthor =
+                EditorGUILayout.Toggle("Include Author Metadata", packageSettings.IncludeAuthor);
             if (packageSettings.IncludeAuthor) {
                 EditorGUI.indentLevel++;
                 packageSettings.AuthorUrl = EditorGUILayout.TextField("URL", packageSettings.AuthorUrl);
                 packageSettings.AuthorEmail = EditorGUILayout.TextField("Email", packageSettings.AuthorEmail);
                 EditorGUI.indentLevel--;
             }
+
             packageSettings.IncludeMinimumUnityVersion =
                 EditorGUILayout.Toggle("Minimum Unity Version", packageSettings.IncludeMinimumUnityVersion);
             if (packageSettings.IncludeMinimumUnityVersion) {
                 EditorGUI.indentLevel++;
-                packageSettings.MinimumUnityMajor = EditorGUILayout.TextField("Major", packageSettings.MinimumUnityMajor);
-                packageSettings.MinimumUnityMinor = EditorGUILayout.TextField("Minor", packageSettings.MinimumUnityMinor);
+                packageSettings.MinimumUnityMajor =
+                    EditorGUILayout.TextField("Major", packageSettings.MinimumUnityMajor);
+                packageSettings.MinimumUnityMinor =
+                    EditorGUILayout.TextField("Minor", packageSettings.MinimumUnityMinor);
                 packageSettings.MinimumUnityRelease =
                     EditorGUILayout.TextField("Release", packageSettings.MinimumUnityRelease);
                 EditorGUI.indentLevel--;
@@ -95,7 +99,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// <summary>
         /// Package-content toggles that control optional folder scaffolding.
         /// </summary>
-        public static void DrawPackageContentFields(PackageScaffoldSettings packageSettings) {
+        public static void DrawPackageContentFields(PackageSettings packageSettings) {
             packageSettings.CreateDocsFolder =
                 EditorGUILayout.Toggle("Create Documentation Folder", packageSettings.CreateDocsFolder);
             packageSettings.CreateSamplesFolder =
@@ -109,7 +113,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// <summary>
         /// Repository-level fields shared by package scaffolding defaults and the package wizard.
         /// </summary>
-        public static void DrawRepoSettingsFields(RepoScaffoldSettings repoSettings) {
+        public static void DrawRepoSettingsFields(RepoSettings repoSettings) {
             repoSettings.CopyrightHolder =
                 EditorGUILayout.TextField("Copyright Holder", repoSettings.CopyrightHolder);
             repoSettings.LicenseType =

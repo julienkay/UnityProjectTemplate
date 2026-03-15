@@ -6,7 +6,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Models {
     /// Repository-facing settings that shape generated root files and metadata outside the package manifest.
     /// </summary>
     [Serializable]
-    public class RepoScaffoldSettings {
+    public class RepoSettings {
         /// <summary>
         /// Name written into generated repository-level copyright notices such as the license file.
         /// </summary>
@@ -23,7 +23,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Models {
         /// Copies all repository-facing values from another settings instance.
         /// </summary>
         /// <param name="other">The source settings to copy from.</param>
-        public void CopyFrom(RepoScaffoldSettings other) {
+        public void CopyFrom(RepoSettings other) {
             if (other == null) {
                 return;
             }

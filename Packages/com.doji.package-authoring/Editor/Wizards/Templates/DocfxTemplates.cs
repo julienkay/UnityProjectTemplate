@@ -1,6 +1,9 @@
-namespace Doji.PackageAuthoring.Editor.Wizards {
-    public partial class PackageCreationWizard {
-        public string GetDocfxJson() {
+namespace Doji.PackageAuthoring.Editor.Wizards.Templates {
+    /// <summary>
+    /// Builds docfx configuration files for generated package documentation.
+    /// </summary>
+    public static class DocfxTemplates {
+        public static string GetDocfxJson(PackageContext ctx) {
             return $@"{{
   ""metadata"": [
     {{
@@ -9,7 +12,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
           ""files"": [
             ""**/*.cs""
           ],
-          ""src"": ""../{_packageSettings.PackageName}""
+          ""src"": ""../{ctx.Package.PackageName}""
         }}
       ],
       ""dest"": ""api"",
@@ -68,12 +71,12 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
 }}";
         }
 
-        public string GetDocfxPdfJson() {
+        public static string GetDocfxPdfJson(PackageContext ctx) {
             return $@"{{
   ""metadata"": [
     {{
       ""src"": [
-        {{ ""files"": [ ""{_packageSettings.AssemblyName.ToLower()}.csproj"" ], ""src"": ""../projects/{_projectSettings.ProductName}"" }}
+        {{ ""files"": [ ""{ctx.Package.AssemblyName.ToLower()}.csproj"" ], ""src"": ""../projects/{ctx.Project.ProductName}"" }}
       ],
       ""dest"": ""api"",
       ""includePrivateMembers"": false,
@@ -122,7 +125,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
       ""_disableContribution"": true,
       ""pdf"": true,
       ""pdfTocPage"": true,
-      ""pdfFileName"": ""{_packageSettings.PackageName}.pdf""
+      ""pdfFileName"": ""{ctx.Package.PackageName}.pdf""
     }},
     ""fileMetadataFiles"": [],
     ""template"": [
@@ -137,8 +140,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
 }}";
         }
 
-        public string GetFilterConfig() {
-            string ns = _packageSettings.NamespaceName.Replace(".", @"\.");
+        public static string GetFilterConfig(PackageContext ctx) {
+            string ns = ctx.Package.NamespaceName.Replace(".", @"\.");
             return $@"apiRules:
 - include: # The namespaces to generate
     uidRegex: ^{ns}
@@ -152,13 +155,13 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
     uidRegex: ^{ns}\.Samples";
         }
 
-        public string GetIndexMD() {
-            return $@"# {_projectSettings.ProductName}
+        public static string GetIndexMD(PackageContext ctx) {
+            return $@"# {ctx.Project.ProductName}
 
-{_packageSettings.Description}.";
+{ctx.Package.Description}.";
         }
 
-        public string GetRootToc() {
+        public static string GetRootToc(PackageContext ctx) {
             return $@"- name: Manual
   href: manual/
 - name: Scripting API
@@ -167,8 +170,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
 ";
         }
 
-        public string GetManualToc() {
-            return $@"- name: {_projectSettings.ProductName}
+        public static string GetManualToc(PackageContext ctx) {
+            return $@"- name: {ctx.Project.ProductName}
   href: ../index.md
 ";
         }

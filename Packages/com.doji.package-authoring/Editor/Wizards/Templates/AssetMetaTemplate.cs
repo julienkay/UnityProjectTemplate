@@ -1,4 +1,4 @@
-namespace Doji.PackageAuthoring.Editor.Wizards {
+namespace Doji.PackageAuthoring.Editor.Wizards.Templates {
     /// <summary>
     /// Builds Unity meta file content for generated assets so their GUIDs are stable before first import.
     /// </summary>
@@ -15,9 +15,9 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
 guid: {guid}
 {importerName}:
   externalObjects: {{}}
-  userData: 
-  assetBundleName: 
-  assetBundleVariant: 
+  userData:
+  assetBundleName:
+  assetBundleVariant:
 ";
         }
     }

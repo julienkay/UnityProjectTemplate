@@ -8,26 +8,27 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
     /// </summary>
     [FilePath("ProjectSettings/PackageAuthoringProjectSettings.asset", FilePathAttribute.Location.ProjectFolder)]
     internal sealed class PackageAuthoringProjectSettings : ScriptableSingleton<PackageAuthoringProjectSettings> {
-        [SerializeField] private ProjectScaffoldSettings projectDefaults = new() {
+        [SerializeField] private ProjectSettings projectDefaults = new() {
             ProductName = "MyPackage"
         };
-        [SerializeField] private PackageScaffoldSettings packageDefaults = new();
-        [SerializeField] private RepoScaffoldSettings repoDefaults = new();
+
+        [SerializeField] private PackageSettings packageDefaults = new();
+        [SerializeField] private RepoSettings repoDefaults = new();
 
         /// <summary>
         /// Shared project defaults that seed both creation wizards.
         /// </summary>
-        public ProjectScaffoldSettings ProjectDefaults => projectDefaults;
+        public ProjectSettings ProjectDefaults => projectDefaults;
 
         /// <summary>
         /// Package defaults used by the package creation wizard and settings provider.
         /// </summary>
-        public PackageScaffoldSettings PackageDefaults => packageDefaults;
+        public PackageSettings PackageDefaults => packageDefaults;
 
         /// <summary>
         /// Repository defaults used by the package creation wizard and repository root templates.
         /// </summary>
-        public RepoScaffoldSettings RepoDefaults => repoDefaults;
+        public RepoSettings RepoDefaults => repoDefaults;
 
         /// <summary>
         /// Saves the current settings instance back into the project settings asset.

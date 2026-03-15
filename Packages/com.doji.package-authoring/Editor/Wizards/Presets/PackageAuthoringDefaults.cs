@@ -7,25 +7,26 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
     /// </summary>
     [CreateAssetMenu(menuName = "Doji/Package Authoring Preset", fileName = "PackageAuthoringPreset")]
     public sealed class PackageAuthoringDefaults : ScriptableObject {
-        [SerializeField] private ProjectScaffoldSettings projectDefaults = new() {
+        [SerializeField] private ProjectSettings projectDefaults = new() {
             ProductName = "MyPackage"
         };
-        [SerializeField] private PackageScaffoldSettings packageDefaults = new();
-        [SerializeField] private RepoScaffoldSettings repoDefaults = new();
+
+        [SerializeField] private PackageSettings packageDefaults = new();
+        [SerializeField] private RepoSettings repoDefaults = new();
 
         /// <summary>
         /// Shared project defaults used by both the standalone and companion project flows.
         /// </summary>
-        public ProjectScaffoldSettings ProjectDefaults => projectDefaults;
+        public ProjectSettings ProjectDefaults => projectDefaults;
 
         /// <summary>
         /// Package defaults used by the package scaffolding flow.
         /// </summary>
-        public PackageScaffoldSettings PackageDefaults => packageDefaults;
+        public PackageSettings PackageDefaults => packageDefaults;
 
         /// <summary>
         /// Repository defaults used by the package scaffolding flow.
         /// </summary>
-        public RepoScaffoldSettings RepoDefaults => repoDefaults;
+        public RepoSettings RepoDefaults => repoDefaults;
     }
 }

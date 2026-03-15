@@ -1,46 +1,49 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Linq;
 using Doji.PackageAuthoring.Editor.Wizards.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using static Doji.PackageAuthoring.Editor.Utilities.JsonBuilder;
 
-namespace Doji.PackageAuthoring.Editor.Wizards {
-    public partial class PackageCreationWizard {
-        public string GetPackageManifest() {
-            var json = Obj(
-                Prop("name", _packageSettings.PackageName),
-                Prop("version", _projectSettings.Version),
-                Prop("displayName", _projectSettings.ProductName),
-                Prop("description", _packageSettings.Description),
-                Prop("author", _packageSettings.IncludeAuthor ? GetAuthorMetadata() : null),
+namespace Doji.PackageAuthoring.Editor.Wizards.Templates {
+    /// <summary>
+    /// Builds the generated package manifest.
+    /// </summary>
+    public static class PackageManifestTemplate {
+        public static string GetPackageManifest(PackageContext ctx) {
+            JObject json = Obj(
+                Prop("name", ctx.Package.PackageName),
+                Prop("version", ctx.Project.Version),
+                Prop("displayName", ctx.Project.ProductName),
+                Prop("description", ctx.Package.Description),
+                Prop("author", ctx.Package.IncludeAuthor ? GetAuthorMetadata(ctx) : null),
                 PropIf(
-                    _packageSettings.IncludeMinimumUnityVersion,
+                    ctx.Package.IncludeMinimumUnityVersion,
                     "unity",
-                    $"{_packageSettings.MinimumUnityMajor}.{_packageSettings.MinimumUnityMinor}"),
+                    $"{ctx.Package.MinimumUnityMajor}.{ctx.Package.MinimumUnityMinor}"),
                 PropIf(
-                    _packageSettings.IncludeMinimumUnityVersion &&
-                    !string.IsNullOrWhiteSpace(_packageSettings.MinimumUnityRelease),
+                    ctx.Package.IncludeMinimumUnityVersion &&
+                    !string.IsNullOrWhiteSpace(ctx.Package.MinimumUnityRelease),
                     "unityRelease",
-                    _packageSettings.MinimumUnityRelease),
-                Prop("documentationUrl", $"https://docs.doji-tech.com/{_packageSettings.PackageName}/"),
-                PropIf(_packageSettings.CreateSamplesFolder, "samples", GetSamples()),
-                PropIf(_packageSettings.Dependencies is { Count: > 0 }, "dependencies", GetDependencies())
+                    ctx.Package.MinimumUnityRelease),
+                Prop("documentationUrl", $"https://docs.doji-tech.com/{ctx.Package.PackageName}/"),
+                PropIf(ctx.Package.CreateSamplesFolder, "samples", GetSamples(ctx)),
+                PropIf(ctx.Package.Dependencies is { Count: > 0 }, "dependencies", GetDependencies(ctx))
             );
 
             return json.ToString(Formatting.Indented);
         }
 
-        private JObject GetAuthorMetadata() {
-            var author = Obj(
-                Prop("name", _packageSettings.CompanyName),
-                Prop("url", _packageSettings.AuthorUrl),
-                Prop("email", _packageSettings.AuthorEmail)
+        private static JObject GetAuthorMetadata(PackageContext ctx) {
+            JObject author = Obj(
+                Prop("name", ctx.Package.CompanyName),
+                Prop("url", ctx.Package.AuthorUrl),
+                Prop("email", ctx.Package.AuthorEmail)
             );
 
             return author.HasValues ? author : null;
         }
 
-        JArray GetSamples() {
+        private static JArray GetSamples(PackageContext ctx) {
             return Arr(
                 Obj(
                     Prop("displayName", "Shared Sample Assets (Required)"),
@@ -50,17 +53,17 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
                 ),
                 Obj(
                     Prop("displayName", "Basic Sample"),
-                    Prop("description", $"Basic example on how to use {_projectSettings.ProductName}."),
+                    Prop("description", $"Basic example on how to use {ctx.Project.ProductName}."),
                     Prop("path", "Samples~/01-BasicSample")
                 )
             );
         }
 
-        JObject GetDependencies() {
-            var obj = new JObject();
+        private static JObject GetDependencies(PackageContext ctx) {
+            JObject obj = new JObject();
 
-            foreach (var dep in (_packageSettings.Dependencies ?? Enumerable.Empty<PackageDependencyEntry>())
-                         .OrderBy(d => d.PackageName)) {
+            foreach (PackageDependencyEntry dep in (ctx.Package.Dependencies ?? Enumerable.Empty<PackageDependencyEntry>())
+                     .OrderBy(d => d.PackageName)) {
                 obj[dep.PackageName] = dep.Version;
             }
 

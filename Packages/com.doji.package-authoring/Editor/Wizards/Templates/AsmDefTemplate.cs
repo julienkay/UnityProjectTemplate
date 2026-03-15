@@ -1,12 +1,15 @@
-namespace Doji.PackageAuthoring.Editor.Wizards {
-    public partial class PackageCreationWizard {
+namespace Doji.PackageAuthoring.Editor.Wizards.Templates {
+    /// <summary>
+    /// Builds asmdef files for generated package assemblies.
+    /// </summary>
+    public static class AsmDefTemplate {
         /// <summary>
         /// Builds the runtime asmdef JSON for the generated package.
         /// </summary>
-        public string GetRuntimeAsmDef() {
+        public static string GetRuntimeAsmDef(PackageContext ctx) {
             return $@"{{
-    ""name"": ""{_packageSettings.AssemblyName}"",
-    ""rootNamespace"": ""{_packageSettings.NamespaceName}"",
+    ""name"": ""{ctx.Package.AssemblyName}"",
+    ""rootNamespace"": ""{ctx.Package.NamespaceName}"",
     ""references"": [],
     ""includePlatforms"": [],
     ""excludePlatforms"": [],
@@ -24,10 +27,10 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// Builds the samples asmdef JSON for the generated package.
         /// </summary>
         /// <param name="runtimeAssemblyGuid">GUID of the generated runtime asmdef used for stable references.</param>
-        public string GetSamplesAsmDef(string runtimeAssemblyGuid) {
+        public static string GetSamplesAsmDef(PackageContext ctx, string runtimeAssemblyGuid) {
             return $@"{{
-    ""name"": ""{_packageSettings.AssemblyName}.Samples"",
-    ""rootNamespace"": ""{_packageSettings.NamespaceName}.Samples"",
+    ""name"": ""{ctx.Package.AssemblyName}.Samples"",
+    ""rootNamespace"": ""{ctx.Package.NamespaceName}.Samples"",
     ""references"": [
         ""GUID:{runtimeAssemblyGuid}""
     ],
@@ -47,10 +50,10 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// Builds the editor-only asmdef JSON for the generated package.
         /// </summary>
         /// <param name="runtimeAssemblyGuid">GUID of the generated runtime asmdef used for stable references.</param>
-        public string GetEditorAsmDef(string runtimeAssemblyGuid) {
+        public static string GetEditorAsmDef(PackageContext ctx, string runtimeAssemblyGuid) {
             return $@"{{
-    ""name"": ""{_packageSettings.AssemblyName}.Editor"",
-    ""rootNamespace"": ""{_packageSettings.NamespaceName}.Editor"",
+    ""name"": ""{ctx.Package.AssemblyName}.Editor"",
+    ""rootNamespace"": ""{ctx.Package.NamespaceName}.Editor"",
     ""references"": [
         ""GUID:{runtimeAssemblyGuid}""
     ],

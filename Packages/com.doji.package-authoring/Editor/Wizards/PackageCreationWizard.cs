@@ -10,6 +10,7 @@ using Doji.PackageAuthoring.Editor.Utilities;
 using Doji.PackageAuthoring.Editor.Wizards.Models;
 using Doji.PackageAuthoring.Editor.Wizards.PackageSearch;
 using Doji.PackageAuthoring.Editor.Wizards.Presets;
+using Doji.PackageAuthoring.Editor.Wizards.Templates;
 using Process = System.Diagnostics.Process;
 using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
 
@@ -19,20 +20,25 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
     /// </summary>
     public partial class PackageCreationWizard : EditorWindow {
         private const string PackageSectionPresetTooltip = "Apply package defaults or a package preset asset.";
-        private const string CompanionProjectPresetTooltip = "Apply project defaults or a preset asset to the companion project.";
+
+        private const string CompanionProjectPresetTooltip =
+            "Apply project defaults or a preset asset to the companion project.";
+
         private const float StructurePreviewMinWidth = 360f;
         private const float StructurePreviewMaxWidth = 640f;
         private const float StructurePreviewMinHeight = 220f;
         private const float StructurePreviewMaxHeight = 520f;
-        private static readonly string DependenciesField = $"<{nameof(PackageScaffoldSettings.Dependencies)}>k__BackingField";
+        private static readonly string DependenciesField = $"<{nameof(PackageSettings.Dependencies)}>k__BackingField";
+
         private static readonly string PackageDependencyPackageNameField =
             $"<{nameof(PackageDependencyEntry.PackageName)}>k__BackingField";
+
         private static readonly string PackageDependencyVersionField =
             $"<{nameof(PackageDependencyEntry.Version)}>k__BackingField";
 
-        [SerializeField] private ProjectScaffoldSettings _projectSettings = new() { ProductName = "MyPackage" };
-        [SerializeField] private PackageScaffoldSettings _packageSettings = new();
-        [SerializeField] private RepoScaffoldSettings _repoSettings = new();
+        [SerializeField] private ProjectSettings _projectSettings = new() { ProductName = "MyPackage" };
+        [SerializeField] private PackageSettings _packageSettings = new();
+        [SerializeField] private RepoSettings _repoSettings = new();
         [SerializeField] private bool _initializedFromDefaults;
         [SerializeField] private Vector2 _structurePreviewScrollPosition;
         [SerializeField] private bool _autoOpenAfterCreation = true;
@@ -40,6 +46,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         private string RootDirectory => Path.Combine(_projectSettings.TargetLocation, _packageSettings.PackageName);
         private string PackageDirectory => Path.Combine(RootDirectory, _packageSettings.PackageName);
         private string ProjectDirectory => Path.Combine(RootDirectory, "projects", _projectSettings.ProductName);
+        private PackageContext Ctx => new(_projectSettings, _packageSettings, _repoSettings);
         private string _runtimeAssemblyGuid;
 
         [SerializeField] private ReorderableList _dependenciesList;
@@ -183,7 +190,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             var list = _dependenciesList.serializedProperty;
             var dependency = list.GetArrayElementAtIndex(index);
             var packageNameProperty = dependency.FindPropertyRelative(PackageDependencyPackageNameField);
-            return _dependencyAutocompleteField.GetHeight(GetDependencyFieldKey(index), packageNameProperty.stringValue);
+            return _dependencyAutocompleteField.GetHeight(GetDependencyFieldKey(index),
+                packageNameProperty.stringValue);
         }
 
         /// <summary>
@@ -204,7 +212,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             CreationWizardLayout.DrawSection(
                 "Package Definition",
                 DrawPackageDefinitionSection,
-                () => CreationWizardLayout.DrawSectionHeaderPresetButton(PackageSectionPresetTooltip, ShowPackagePresetMenu));
+                () => CreationWizardLayout.DrawSectionHeaderPresetButton(PackageSectionPresetTooltip,
+                    ShowPackagePresetMenu));
 
             GUILayout.Space(8f);
             CreationWizardLayout.DrawSection("Repo Settings", DrawRepoSettingsSection);
@@ -213,7 +222,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             CreationWizardLayout.DrawSection(
                 "Companion Project",
                 DrawCompanionProjectSection,
-                () => CreationWizardLayout.DrawSectionHeaderPresetButton(CompanionProjectPresetTooltip, ShowCompanionProjectPresetMenu));
+                () => CreationWizardLayout.DrawSectionHeaderPresetButton(CompanionProjectPresetTooltip,
+                    ShowCompanionProjectPresetMenu));
 
             GUILayout.Space(8f);
             CreationWizardLayout.DrawSection("Output", DrawOutputSection);
@@ -340,7 +350,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// Draws the output paths resolved from the current package and project settings.
         /// </summary>
         private void DrawOutputSection() {
-            _projectSettings.TargetLocation = EditorGUILayout.TextField("Target Location", _projectSettings.TargetLocation);
+            _projectSettings.TargetLocation =
+                EditorGUILayout.TextField("Target Location", _projectSettings.TargetLocation);
             EditorGUILayout.LabelField("Repository Root", RootDirectory, EditorStyles.miniLabel);
             EditorGUILayout.LabelField("Package Folder", PackageDirectory, EditorStyles.miniLabel);
             EditorGUILayout.LabelField("Companion Project", ProjectDirectory, EditorStyles.miniLabel);
@@ -499,7 +510,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             return string.IsNullOrWhiteSpace(path) ? fallback : Path.GetFileName(path);
         }
 
-        private static void AppendTree(StringBuilder builder, PreviewNode node, string indent, bool isLast, bool isRoot = false) {
+        private static void AppendTree(StringBuilder builder, PreviewNode node, string indent, bool isLast,
+            bool isRoot = false) {
             if (isRoot) {
                 builder.AppendLine(node.Name);
             }
@@ -591,7 +603,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
                 }
 
                 string projectManifestPath = Path.Combine(ProjectDirectory, "Packages", "manifest.json");
-                CreateFile(projectManifestPath, GetProjectManifest(), overwrite: true);
+                CreateFile(projectManifestPath, Ctx.GetProjectManifest(), overwrite: true);
             }
             finally {
                 // The generator temporarily mutates project-level settings so copied files contain the new package metadata.
@@ -657,22 +669,22 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
 
         private void CreateRootFiles() {
             string licensePath = Path.Combine(RootDirectory, "LICENSE");
-            CreateFile(licensePath, GetLicense());
+            CreateFile(licensePath, Ctx.GetLicense());
 
             string readmePath = Path.Combine(RootDirectory, "README.md");
-            CreateFile(readmePath, GetRepositoryReadme());
+            CreateFile(readmePath, Ctx.GetRepositoryReadme());
         }
 
         private void CreatePackageFiles(string path) {
             string packageManifestPath = Path.Combine(path, "package.json");
             // `package.json` is regenerated because optional samples and dependencies directly affect its contents.
-            CreateFile(packageManifestPath, GetPackageManifest(), overwrite: true);
+            CreateFile(packageManifestPath, Ctx.GetPackageManifest(), overwrite: true);
 
             string readmePath = Path.Combine(path, "README.md");
-            CreateFile(readmePath, GetPackageReadme());
+            CreateFile(readmePath, Ctx.GetPackageReadme());
 
             string changelogPath = Path.Combine(path, "CHANGELOG.md");
-            CreateFile(changelogPath, ChangelogTemplate.GetContent(_projectSettings.Version));
+            CreateFile(changelogPath, Ctx.GetChangelog());
         }
 
         /// <summary>
@@ -722,7 +734,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// <returns>GUID written into the runtime asmdef meta file.</returns>
         private string CreateRuntimeAsmDef(string path) {
             string asmDefPath = Path.Combine(path, $"{_packageSettings.AssemblyName}.asmdef");
-            return CreateAsmDefWithMeta(asmDefPath, GetRuntimeAsmDef());
+            return CreateAsmDefWithMeta(asmDefPath, Ctx.GetRuntimeAsmDef());
         }
 
         /// <summary>
@@ -731,7 +743,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// <param name="runtimeAssemblyGuid">GUID of the generated runtime asmdef used for stable references.</param>
         private void CreateSamplesAsmDef(string path, string runtimeAssemblyGuid) {
             string asmDefPath = Path.Combine(path, $"{_packageSettings.AssemblyName}.asmdef");
-            CreateAsmDefWithMeta(asmDefPath, GetSamplesAsmDef(runtimeAssemblyGuid));
+            CreateAsmDefWithMeta(asmDefPath, Ctx.GetSamplesAsmDef(runtimeAssemblyGuid));
         }
 
         /// <summary>
@@ -740,7 +752,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// <param name="runtimeAssemblyGuid">GUID of the generated runtime asmdef used for stable references.</param>
         private void CreateEditorAsmDef(string path, string runtimeAssemblyGuid) {
             string asmDefPath = Path.Combine(path, $"{_packageSettings.AssemblyName}.Editor.asmdef");
-            CreateAsmDefWithMeta(asmDefPath, GetEditorAsmDef(runtimeAssemblyGuid));
+            CreateAsmDefWithMeta(asmDefPath, Ctx.GetEditorAsmDef(runtimeAssemblyGuid));
         }
 
         /// <summary>
@@ -748,7 +760,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// </summary>
         private void CreateAssemblyInfo(string path) {
             string assemblyInfoPath = Path.Combine(path, "AssemblyInfo.cs");
-            CreateFile(assemblyInfoPath, GetAssemblyInfo());
+            CreateFile(assemblyInfoPath, Ctx.GetAssemblyInfo());
         }
 
         /// <summary>
@@ -783,7 +795,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             CreateSamplesAsmDef(samplesPath, _runtimeAssemblyGuid);
 
             // Keep the starter sample in a numbered folder so package manager ordering is predictable.
-            CreateFile(Path.Combine(samplesPath, "01-BasicSample", "BasicSample.cs"), GetSampleScript());
+            CreateFile(Path.Combine(samplesPath, "01-BasicSample", "BasicSample.cs"), Ctx.GetSampleScript());
         }
 
         /// <summary>
@@ -808,22 +820,22 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// </summary>
         private void CreateDocfxFiles(string path) {
             string docfxConfigPath = Path.Combine(path, "docfx.json");
-            CreateFile(docfxConfigPath, GetDocfxJson());
+            CreateFile(docfxConfigPath, Ctx.GetDocfxJson());
 
             string docfxPdfConfigPath = Path.Combine(path, "docfx-pdf.json");
-            CreateFile(docfxPdfConfigPath, GetDocfxPdfJson());
+            CreateFile(docfxPdfConfigPath, Ctx.GetDocfxPdfJson());
 
             string filterConfigPath = Path.Combine(path, "filterConfig.yml");
-            CreateFile(filterConfigPath, GetFilterConfig());
+            CreateFile(filterConfigPath, Ctx.GetFilterConfig());
 
             string indexPath = Path.Combine(path, "index.md");
-            CreateFile(indexPath, GetIndexMD());
+            CreateFile(indexPath, Ctx.GetIndexMD());
 
             string tocPath = Path.Combine(path, "toc.yml");
-            CreateFile(tocPath, GetRootToc());
+            CreateFile(tocPath, Ctx.GetRootToc());
 
             string manualTocPath = Path.Combine(path, "manual", "toc.yml");
-            CreateFile(manualTocPath, GetManualToc());
+            CreateFile(manualTocPath, Ctx.GetManualToc());
         }
 
         /// <summary>

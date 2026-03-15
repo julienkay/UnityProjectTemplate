@@ -15,7 +15,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
     public class ProjectCreationWizard : EditorWindow {
         private const string ProjectSectionPresetTooltip = "Apply project defaults or a preset asset.";
 
-        [SerializeField] private ProjectScaffoldSettings _projectSettings = new();
+        [SerializeField] private ProjectSettings _projectSettings = new();
         [SerializeField] private bool _initializedFromDefaults;
         private bool _autoOpenAfterCreation = true;
 
@@ -130,7 +130,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// Draws the destination fields and resolved output folder preview.
         /// </summary>
         private void DrawOutputSection() {
-            _projectSettings.TargetLocation = EditorGUILayout.TextField("Target Location", _projectSettings.TargetLocation);
+            _projectSettings.TargetLocation =
+                EditorGUILayout.TextField("Target Location", _projectSettings.TargetLocation);
             EditorGUILayout.LabelField("Project Folder", ProjectDirectory, EditorStyles.miniLabel);
         }
 

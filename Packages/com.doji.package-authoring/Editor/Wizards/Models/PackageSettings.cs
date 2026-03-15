@@ -7,7 +7,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Models {
     /// Shared package-facing settings used by package scaffolding presets and the package wizard.
     /// </summary>
     [Serializable]
-    public class PackageScaffoldSettings {
+    public class PackageSettings {
         /// <summary>
         /// Package identifier written to the generated <c>package.json</c>.
         /// </summary>
@@ -114,7 +114,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Models {
         /// Copies all package-facing values from another settings instance, including dependency entries.
         /// </summary>
         /// <param name="other">The source settings to copy from.</param>
-        public void CopyFrom(PackageScaffoldSettings other) {
+        public void CopyFrom(PackageSettings other) {
             if (other == null) {
                 return;
             }
