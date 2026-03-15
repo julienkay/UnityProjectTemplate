@@ -1,6 +1,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Linq;
+using Doji.PackageAuthoring.Editor.Wizards.Models;
 using static Doji.PackageAuthoring.Editor.Utilities.JsonBuilder;
 
 namespace Doji.PackageAuthoring.Editor.Wizards {
@@ -23,7 +24,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
                     _packageSettings.MinimumUnityRelease),
                 Prop("documentationUrl", $"https://docs.doji-tech.com/{_packageSettings.PackageName}/"),
                 PropIf(_packageSettings.CreateSamplesFolder, "samples", GetSamples()),
-                PropIf(_packageSettings.Dependencies.Count > 0, "dependencies", GetDependencies())
+                PropIf(_packageSettings.Dependencies is { Count: > 0 }, "dependencies", GetDependencies())
             );
 
             return json.ToString(Formatting.Indented);
@@ -58,7 +59,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         JObject GetDependencies() {
             var obj = new JObject();
 
-            foreach (var dep in _packageSettings.Dependencies.OrderBy(d => d.PackageName)) {
+            foreach (var dep in (_packageSettings.Dependencies ?? Enumerable.Empty<PackageDependencyEntry>())
+                         .OrderBy(d => d.PackageName)) {
                 obj[dep.PackageName] = dep.Version;
             }
 

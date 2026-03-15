@@ -108,12 +108,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Models {
         /// Gets the dependency entries written into the generated package manifest.
         /// </summary>
         [field: SerializeField]
-        public List<PackageDependencyEntry> Dependencies { get; set; } = new() {
-            new() {
-                PackageName = "com.unity.ai.inference",
-                Version = "2.3.0"
-            }
-        };
+        public List<PackageDependencyEntry> Dependencies { get; set; } = new();
 
         /// <summary>
         /// Copies all package-facing values from another settings instance, including dependency entries.
@@ -141,7 +136,11 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Models {
             CreateEditorFolder = other.CreateEditorFolder;
             CreateTestsFolder = other.CreateTestsFolder;
 
-            Dependencies = new List<PackageDependencyEntry>(other.Dependencies.Count);
+            Dependencies = new List<PackageDependencyEntry>(other.Dependencies?.Count ?? 0);
+            if (other.Dependencies == null) {
+                return;
+            }
+
             foreach (var dependency in other.Dependencies) {
                 var clone = new PackageDependencyEntry();
                 clone.CopyFrom(dependency);
