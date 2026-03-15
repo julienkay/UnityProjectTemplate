@@ -35,12 +35,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
         // cache transient UI state by target object identity rather than purely by property path.
         private static PackageAuthoringProjectSettings GetOrCreateSettings() {
             PackageAuthoringProjectSettings settings = LoadOrCreate();
-            if (settings.ProjectDefaults == null) {
-                settings.ProjectDefaults = new ProjectSettings {
-                    ProductName = "MyPackage"
-                };
-            }
-
+            settings.ProjectDefaults ??= new ProjectSettings();
             settings.PackageDefaults ??= new PackageSettings();
             settings.RepoDefaults ??= new RepoSettings();
             return settings;
@@ -60,12 +55,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
         }
 
         private void Save(bool saveAsText) {
-            if (ProjectDefaults == null) {
-                ProjectDefaults = new ProjectSettings {
-                    ProductName = "MyPackage"
-                };
-            }
-
+            ProjectDefaults ??= new ProjectSettings();
             PackageDefaults ??= new PackageSettings();
             RepoDefaults ??= new RepoSettings();
             InternalEditorUtility.SaveToSerializedFileAndForget(

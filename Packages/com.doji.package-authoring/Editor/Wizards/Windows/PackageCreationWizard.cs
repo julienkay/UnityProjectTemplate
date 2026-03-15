@@ -524,9 +524,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         private static PackageAuthoringProfile CreateTemporaryProfile() {
             PackageAuthoringProfile profile = CreateInstance<PackageAuthoringProfile>();
             profile.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSaveInEditor;
-            profile.ProjectDefaults = new ProjectSettings {
-                ProductName = "MyPackage"
-            };
+            profile.ProjectDefaults = new ProjectSettings();
             profile.PackageDefaults = new PackageSettings();
             profile.RepoDefaults = new RepoSettings();
             return profile;
