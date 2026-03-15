@@ -1,3 +1,4 @@
+using System;
 using UnityEditor;
 using UnityEngine;
 using Doji.PackageAuthoring.Editor.Wizards.Models;
@@ -42,11 +43,6 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             $"<{nameof(PackageSettings.CreateTestsFolder)}>k__BackingField";
 
         private static readonly string DependenciesField = $"<{nameof(PackageSettings.Dependencies)}>k__BackingField";
-
-        /// <inheritdoc />
-        public override bool CanCacheInspectorGUI(SerializedProperty property) {
-            return false;
-        }
 
         /// <inheritdoc />
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {

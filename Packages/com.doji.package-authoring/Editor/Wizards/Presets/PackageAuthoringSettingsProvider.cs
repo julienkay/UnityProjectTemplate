@@ -1,8 +1,8 @@
 using UnityEditor;
 using UnityEngine;
-using Doji.PackageAuthoring.Editor.Wizards;
 using Doji.PackageAuthoring.Editor.Wizards.Models;
 using Doji.PackageAuthoring.Editor.Wizards.PackageSearch;
+using Doji.PackageAuthoring.Editor.Wizards.UI;
 
 namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
     /// <summary>

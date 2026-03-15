@@ -1,8 +1,8 @@
+using Doji.PackageAuthoring.Editor.Wizards.Models;
 using UnityEditor;
 using UnityEngine;
-using Doji.PackageAuthoring.Editor.Wizards.Models;
 
-namespace Doji.PackageAuthoring.Editor.Wizards {
+namespace Doji.PackageAuthoring.Editor.Wizards.Drawers {
     /// <summary>
     /// Draws the serialized project-settings block used by the project and package authoring tools.
     /// </summary>
@@ -14,11 +14,6 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
 
         private static readonly string TargetLocationField =
             $"<{nameof(ProjectSettings.TargetLocation)}>k__BackingField";
-
-        /// <inheritdoc />
-        public override bool CanCacheInspectorGUI(SerializedProperty property) {
-            return false;
-        }
 
         /// <inheritdoc />
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {

@@ -9,6 +9,7 @@ using Doji.PackageAuthoring.Editor.Utilities;
 using Doji.PackageAuthoring.Editor.Wizards.Models;
 using Doji.PackageAuthoring.Editor.Wizards.Presets;
 using Doji.PackageAuthoring.Editor.Wizards.Templates;
+using Doji.PackageAuthoring.Editor.Wizards.UI;
 
 namespace Doji.PackageAuthoring.Editor.Wizards {
     /// <summary>
@@ -339,7 +340,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             float contentHeight = _structurePreviewStyle.CalcHeight(
                 new GUIContent(previewText),
                 Mathf.Max(1f, EditorGUIUtility.currentViewWidth));
-            float previewHeight = Mathf.Clamp(contentHeight + 10f, StructurePreviewMinHeight, StructurePreviewMaxHeight);
+            float previewHeight =
+                Mathf.Clamp(contentHeight + 10f, StructurePreviewMinHeight, StructurePreviewMaxHeight);
 
             using (EditorGUILayout.ScrollViewScope scrollView = new EditorGUILayout.ScrollViewScope(
                        _structurePreviewScrollPosition,

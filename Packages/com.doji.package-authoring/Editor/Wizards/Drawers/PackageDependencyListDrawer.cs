@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEditorInternal;
@@ -27,11 +28,6 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
 
             public static readonly GUIContent Package =
                 EditorGUIUtility.TrTextContent("Package name", "Must be lowercase");
-        }
-
-        /// <inheritdoc />
-        public override bool CanCacheInspectorGUI(SerializedProperty property) {
-            return false;
         }
 
         /// <inheritdoc />

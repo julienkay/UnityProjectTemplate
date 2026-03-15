@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Doji.PackageAuthoring.Editor.Wizards {
+namespace Doji.PackageAuthoring.Editor.Wizards.Drawers {
     /// <summary>
     /// Carries host-specific rendering options for <c>ProjectSettings</c> property drawers.
     /// </summary>
