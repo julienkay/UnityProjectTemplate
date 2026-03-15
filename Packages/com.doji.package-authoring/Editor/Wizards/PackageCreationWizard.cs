@@ -11,8 +11,6 @@ using Doji.PackageAuthoring.Editor.Wizards.Models;
 using Doji.PackageAuthoring.Editor.Wizards.PackageSearch;
 using Doji.PackageAuthoring.Editor.Wizards.Presets;
 using Doji.PackageAuthoring.Editor.Wizards.Templates;
-using Process = System.Diagnostics.Process;
-using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
 
 namespace Doji.PackageAuthoring.Editor.Wizards {
     /// <summary>
@@ -558,7 +556,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             Debug.Log($"Package scaffolding created successfully at {RootDirectory}");
 
             if (_autoOpenAfterCreation) {
-                OpenProjectInUnity(ProjectDirectory);
+                UnityEditorLauncherUtility.TryOpenProjectInCurrentEditor(ProjectDirectory);
             }
         }
 
@@ -707,25 +705,6 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
                 string destSubDir = Path.Combine(destinationDir, Path.GetFileName(subDir));
                 CopyDirectory(subDir, destSubDir);
             }
-        }
-
-        /// <summary>
-        /// Opens the generated companion project in the currently running Unity editor.
-        /// </summary>
-        private void OpenProjectInUnity(string projectPath) {
-            string editorPath = EditorApplication.applicationPath;
-            if (!File.Exists(editorPath)) {
-                Debug.LogError("Could not locate Unity Editor executable to open new project.");
-                return;
-            }
-
-            Process.Start(new ProcessStartInfo {
-                FileName = editorPath,
-                Arguments = $"-projectPath \"{projectPath}\"",
-                UseShellExecute = false
-            });
-
-            Debug.Log($"Opening project in Unity: {projectPath}");
         }
 
         /// <summary>

@@ -3,10 +3,9 @@ using System.IO;
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEngine;
+using Doji.PackageAuthoring.Editor.Utilities;
 using Doji.PackageAuthoring.Editor.Wizards.Models;
 using Doji.PackageAuthoring.Editor.Wizards.Presets;
-using Process = System.Diagnostics.Process;
-using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
 
 namespace Doji.PackageAuthoring.Editor.Wizards {
     /// <summary>
@@ -160,7 +159,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             Debug.Log($"Project created successfully at {ProjectDirectory}");
 
             if (_autoOpenAfterCreation) {
-                OpenProjectInUnity(ProjectDirectory);
+                UnityEditorLauncherUtility.TryOpenProjectInCurrentEditor(ProjectDirectory);
             }
         }
 
@@ -240,23 +239,5 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             }
         }
 
-        /// <summary>
-        /// Opens the generated standalone project in the currently running Unity editor.
-        /// </summary>
-        private void OpenProjectInUnity(string projectPath) {
-            string editorPath = EditorApplication.applicationPath; // path to current Unity Editor
-            if (!File.Exists(editorPath)) {
-                Debug.LogError("Could not locate Unity Editor executable to open new project.");
-                return;
-            }
-
-            Process.Start(new ProcessStartInfo {
-                FileName = editorPath,
-                Arguments = $"-projectPath \"{projectPath}\"",
-                UseShellExecute = false
-            });
-
-            Debug.Log($"Opening project in Unity: {projectPath}");
-        }
     }
 }
