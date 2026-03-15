@@ -27,18 +27,25 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
 
         private static readonly string PackageNameField =
             $"<{nameof(Doji.PackageAuthoring.Editor.Wizards.Models.PackageSettings.PackageName)}>k__BackingField";
+
         private static readonly string AssemblyNameField =
             $"<{nameof(Doji.PackageAuthoring.Editor.Wizards.Models.PackageSettings.AssemblyName)}>k__BackingField";
+
         private static readonly string CreateDocsFolderField =
             $"<{nameof(Doji.PackageAuthoring.Editor.Wizards.Models.PackageSettings.CreateDocsFolder)}>k__BackingField";
+
         private static readonly string CreateSamplesFolderField =
             $"<{nameof(Doji.PackageAuthoring.Editor.Wizards.Models.PackageSettings.CreateSamplesFolder)}>k__BackingField";
+
         private static readonly string CreateEditorFolderField =
             $"<{nameof(Doji.PackageAuthoring.Editor.Wizards.Models.PackageSettings.CreateEditorFolder)}>k__BackingField";
+
         private static readonly string CreateTestsFolderField =
             $"<{nameof(Doji.PackageAuthoring.Editor.Wizards.Models.PackageSettings.CreateTestsFolder)}>k__BackingField";
+
         private static readonly string ProductNameField =
             $"<{nameof(Doji.PackageAuthoring.Editor.Wizards.Models.ProjectSettings.ProductName)}>k__BackingField";
+
         private static readonly string TargetLocationField =
             $"<{nameof(Doji.PackageAuthoring.Editor.Wizards.Models.ProjectSettings.TargetLocation)}>k__BackingField";
 
@@ -68,7 +75,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// </summary>
         [MenuItem("Tools/Package Creation Wizard")]
         public static void ShowWindow() {
-            var window = GetWindow<PackageCreationWizard>();
+            PackageCreationWizard window = GetWindow<PackageCreationWizard>();
             window.titleContent = new GUIContent("Package Creation");
             window.minSize = new Vector2(1000f, 800f);
         }
@@ -313,7 +320,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// Draws a live tree preview for the generated repository layout beside the editable fields.
         /// </summary>
         private void DrawStructurePreviewPanel() {
-            var previewWidth = Mathf.Clamp(position.width * 0.4f, StructurePreviewMinWidth, StructurePreviewMaxWidth);
+            float previewWidth = Mathf.Clamp(position.width * 0.4f, StructurePreviewMinWidth, StructurePreviewMaxWidth);
             EditorGUILayout.BeginVertical(GUILayout.Width(previewWidth), GUILayout.ExpandHeight(true));
             PackageAuthoringGui.DrawSection("Project Structure Preview", DrawStructurePreviewContent);
             EditorGUILayout.EndVertical();
@@ -328,13 +335,13 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
                 richText = false
             };
 
-            var previewText = BuildStructurePreview();
-            var contentHeight = _structurePreviewStyle.CalcHeight(
+            string previewText = BuildStructurePreview();
+            float contentHeight = _structurePreviewStyle.CalcHeight(
                 new GUIContent(previewText),
                 Mathf.Max(1f, EditorGUIUtility.currentViewWidth));
-            var previewHeight = Mathf.Clamp(contentHeight + 10f, StructurePreviewMinHeight, StructurePreviewMaxHeight);
+            float previewHeight = Mathf.Clamp(contentHeight + 10f, StructurePreviewMinHeight, StructurePreviewMaxHeight);
 
-            using (var scrollView = new EditorGUILayout.ScrollViewScope(
+            using (EditorGUILayout.ScrollViewScope scrollView = new EditorGUILayout.ScrollViewScope(
                        _structurePreviewScrollPosition,
                        GUILayout.ExpandWidth(true),
                        GUILayout.Height(previewHeight))) {
@@ -348,7 +355,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         }
 
         private string BuildStructurePreview() {
-            var root = new PreviewNode(GetLeafNameOrFallback(PreviewRootDirectory, CurrentPackageName));
+            PreviewNode root = new PreviewNode(GetLeafNameOrFallback(PreviewRootDirectory, CurrentPackageName));
 
             if (CurrentCreateDocsFolder) {
                 root.Children.Add(BuildDocsPreview());
@@ -359,34 +366,34 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             root.Children.Add(new PreviewNode("README.md"));
             root.Children.Add(BuildCompanionProjectPreview());
 
-            var builder = new StringBuilder();
+            StringBuilder builder = new StringBuilder();
             AppendTree(builder, root, string.Empty, isLast: true, isRoot: true);
             return builder.ToString();
         }
 
         private PreviewNode BuildDocsPreview() {
-            var docs = new PreviewNode("docs");
+            PreviewNode docs = new PreviewNode("docs");
             docs.Children.Add(new PreviewNode(".gitignore"));
             docs.Children.Add(new PreviewNode("docfx.json"));
             docs.Children.Add(new PreviewNode("docfx-pdf.json"));
             docs.Children.Add(new PreviewNode("filterConfig.yml"));
             docs.Children.Add(new PreviewNode("index.md"));
 
-            var api = new PreviewNode("api");
+            PreviewNode api = new PreviewNode("api");
             api.Children.Add(new PreviewNode(".gitignore"));
             api.Children.Add(new PreviewNode("index.md"));
             docs.Children.Add(api);
 
-            var images = new PreviewNode("images");
+            PreviewNode images = new PreviewNode("images");
             images.Children.Add(new PreviewNode("doji.png"));
             images.Children.Add(new PreviewNode("favicon.ico"));
             docs.Children.Add(images);
 
-            var manual = new PreviewNode("manual");
+            PreviewNode manual = new PreviewNode("manual");
             manual.Children.Add(new PreviewNode("toc.yml"));
             docs.Children.Add(manual);
 
-            var pdf = new PreviewNode("pdf");
+            PreviewNode pdf = new PreviewNode("pdf");
             pdf.Children.Add(new PreviewNode("toc.yml"));
             docs.Children.Add(pdf);
 
@@ -395,28 +402,28 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         }
 
         private PreviewNode BuildPackagePreview() {
-            var package = new PreviewNode(CurrentPackageName);
+            PreviewNode package = new PreviewNode(CurrentPackageName);
             package.Children.Add(new PreviewNode("CHANGELOG.md"));
 
             if (CurrentCreateEditorFolder) {
-                var editor = new PreviewNode("Editor");
+                PreviewNode editor = new PreviewNode("Editor");
                 editor.Children.Add(new PreviewNode($"{CurrentAssemblyName}.Editor.asmdef"));
                 package.Children.Add(editor);
             }
 
             package.Children.Add(new PreviewNode("README.md"));
 
-            var runtime = new PreviewNode("Runtime");
+            PreviewNode runtime = new PreviewNode("Runtime");
             runtime.Children.Add(new PreviewNode($"{CurrentAssemblyName}.asmdef"));
             runtime.Children.Add(new PreviewNode("AssemblyInfo.cs"));
             package.Children.Add(runtime);
 
             if (CurrentCreateSamplesFolder) {
-                var samples = new PreviewNode("Samples~");
+                PreviewNode samples = new PreviewNode("Samples~");
                 samples.Children.Add(new PreviewNode($"{CurrentAssemblyName}.asmdef"));
                 samples.Children.Add(new PreviewNode("00-SharedSampleAssets"));
 
-                var basicSample = new PreviewNode("01-BasicSample");
+                PreviewNode basicSample = new PreviewNode("01-BasicSample");
                 basicSample.Children.Add(new PreviewNode("BasicSample.cs"));
                 samples.Children.Add(basicSample);
 
@@ -432,15 +439,15 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         }
 
         private PreviewNode BuildCompanionProjectPreview() {
-            var projects = new PreviewNode("projects");
-            var project = new PreviewNode(CurrentProductName);
+            PreviewNode projects = new PreviewNode("projects");
+            PreviewNode project = new PreviewNode(CurrentProductName);
             if (File.Exists(Path.Combine(Directory.GetCurrentDirectory(), ".gitignore"))) {
                 project.Children.Add(new PreviewNode(".gitignore"));
             }
 
             project.Children.Add(new PreviewNode("Assets"));
 
-            var packages = new PreviewNode("Packages");
+            PreviewNode packages = new PreviewNode("Packages");
             packages.Children.Add(new PreviewNode("manifest.json"));
             if (File.Exists(Path.Combine(Directory.GetCurrentDirectory(), "Packages", "packages-lock.json"))) {
                 packages.Children.Add(new PreviewNode("packages-lock.json"));
@@ -465,34 +472,42 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         private string PreviewRootDirectory => Path.Combine(CurrentTargetLocation, CurrentPackageName);
         private string PreviewPackageDirectory => Path.Combine(PreviewRootDirectory, CurrentPackageName);
         private string PreviewProjectDirectory => Path.Combine(PreviewRootDirectory, "projects", CurrentProductName);
+
         private string CurrentPackageName => GetSerializedString(
             PackageAuthoringGui.FindPackageDefaultsProperty(_defaultsSerializedObject),
             PackageNameField,
             PackageSettings.PackageName);
+
         private string CurrentAssemblyName => GetSerializedString(
             PackageAuthoringGui.FindPackageDefaultsProperty(_defaultsSerializedObject),
             AssemblyNameField,
             PackageSettings.AssemblyName);
+
         private string CurrentProductName => GetSerializedString(
             PackageAuthoringGui.FindProjectDefaultsProperty(_defaultsSerializedObject),
             ProductNameField,
             ProjectSettings.ProductName);
+
         private string CurrentTargetLocation => GetSerializedString(
             PackageAuthoringGui.FindProjectDefaultsProperty(_defaultsSerializedObject),
             TargetLocationField,
             ProjectSettings.TargetLocation);
+
         private bool CurrentCreateDocsFolder => GetSerializedBool(
             PackageAuthoringGui.FindPackageDefaultsProperty(_defaultsSerializedObject),
             CreateDocsFolderField,
             PackageSettings.CreateDocsFolder);
+
         private bool CurrentCreateSamplesFolder => GetSerializedBool(
             PackageAuthoringGui.FindPackageDefaultsProperty(_defaultsSerializedObject),
             CreateSamplesFolderField,
             PackageSettings.CreateSamplesFolder);
+
         private bool CurrentCreateEditorFolder => GetSerializedBool(
             PackageAuthoringGui.FindPackageDefaultsProperty(_defaultsSerializedObject),
             CreateEditorFolderField,
             PackageSettings.CreateEditorFolder);
+
         private bool CurrentCreateTestsFolder => GetSerializedBool(
             PackageAuthoringGui.FindPackageDefaultsProperty(_defaultsSerializedObject),
             CreateTestsFolderField,
@@ -507,7 +522,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         }
 
         private static PackageAuthoringProfile CreateTemporaryProfile() {
-            var profile = CreateInstance<PackageAuthoringProfile>();
+            PackageAuthoringProfile profile = CreateInstance<PackageAuthoringProfile>();
             profile.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSaveInEditor;
             profile.ProjectDefaults = new ProjectSettings {
                 ProductName = "MyPackage"
@@ -528,8 +543,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
                 builder.AppendLine(node.Name);
             }
 
-            var childIndent = isRoot ? string.Empty : indent + (isLast ? "    " : "│   ");
-            for (var i = 0; i < node.Children.Count; i++) {
+            string childIndent = isRoot ? string.Empty : indent + (isLast ? "    " : "│   ");
+            for (int i = 0; i < node.Children.Count; i++) {
                 AppendTree(builder, node.Children[i], childIndent, i == node.Children.Count - 1);
             }
         }
@@ -638,7 +653,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             _originalProductName = PlayerSettings.productName;
             _originalVersion = PlayerSettings.bundleVersion;
             OriginalIdentifiers.Clear();
-            foreach (var target in NamedTargets) {
+            foreach (NamedBuildTarget target in NamedTargets) {
                 OriginalIdentifiers.Add(PlayerSettings.GetApplicationIdentifier(target));
             }
 
@@ -647,7 +662,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             PlayerSettings.companyName = ProjectSettings.CompanyName;
             PlayerSettings.productName = ProjectSettings.ProductName;
             PlayerSettings.bundleVersion = ProjectSettings.Version;
-            foreach (var target in NamedTargets) {
+            foreach (NamedBuildTarget target in NamedTargets) {
                 PlayerSettings.SetApplicationIdentifier(target, PackageSettings.PackageName);
             }
 

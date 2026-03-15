@@ -8,7 +8,9 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
     /// </summary>
     [CustomPropertyDrawer(typeof(RepoSettings))]
     internal sealed class RepoSettingsDrawer : PropertyDrawer {
-        private static readonly string CopyrightHolderField = $"<{nameof(RepoSettings.CopyrightHolder)}>k__BackingField";
+        private static readonly string CopyrightHolderField =
+            $"<{nameof(RepoSettings.CopyrightHolder)}>k__BackingField";
+
         private static readonly string LicenseTypeField = $"<{nameof(RepoSettings.LicenseType)}>k__BackingField";
 
         private static readonly GUIContent LicenseTypeLabel = EditorGUIUtility.TrTextContent(

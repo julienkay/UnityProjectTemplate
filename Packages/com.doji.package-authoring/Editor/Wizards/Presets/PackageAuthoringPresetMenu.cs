@@ -22,7 +22,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
             Action applyProjectDefaults,
             Action<PackageAuthoringProfile> applyPreset,
             bool includeProjectDefaults = true) {
-            var menu = new GenericMenu();
+            GenericMenu menu = new GenericMenu();
             if (includeProjectDefaults) {
                 menu.AddItem(new GUIContent("Project Defaults"), false, () => applyProjectDefaults?.Invoke());
                 menu.AddSeparator(string.Empty);

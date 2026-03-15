@@ -8,7 +8,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Templates {
     /// </summary>
     public static class ProjectManifestTemplate {
         public static string GetProjectManifest(PackageContext ctx) {
-            var json = Obj(
+            JObject json = Obj(
                 Prop("dependencies", GetProjectDependencies(ctx)),
                 PropIf(ctx.Package.CreateTestsFolder, "testables", Arr(ctx.Package.PackageName))
             );
@@ -17,7 +17,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Templates {
         }
 
         private static JObject GetProjectDependencies(PackageContext ctx) {
-            var deps = new JObject {
+            JObject deps = new JObject {
                 [ctx.Package.PackageName] = $"file:../../../{ctx.Package.PackageName}",
                 ["com.unity.ide.visualstudio"] = "2.0.27",
                 ["com.unity.ugui"] = "2.0.0",

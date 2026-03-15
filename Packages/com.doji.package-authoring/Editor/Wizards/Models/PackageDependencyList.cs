@@ -28,8 +28,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Models {
                 return;
             }
 
-            foreach (var dependency in other.Items) {
-                var clone = new PackageDependencyEntry();
+            foreach (PackageDependencyEntry dependency in other.Items) {
+                PackageDependencyEntry clone = new PackageDependencyEntry();
                 clone.CopyFrom(dependency);
                 Items.Add(clone);
             }

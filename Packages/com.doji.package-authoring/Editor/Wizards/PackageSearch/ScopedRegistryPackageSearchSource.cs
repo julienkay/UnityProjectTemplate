@@ -82,14 +82,14 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
         }
 
         private void ParseRegistryResponse(string json) {
-            var root = JObject.Parse(json);
-            foreach (var property in root.Properties()) {
+            JObject root = JObject.Parse(json);
+            foreach (JProperty property in root.Properties()) {
                 string packageName = property.Name;
                 if (!MatchesRegistryScopes(packageName)) {
                     continue;
                 }
 
-                var packageToken = (JObject)property.Value;
+                JObject packageToken = (JObject)property.Value;
                 string latestVersion = packageToken.SelectToken("dist-tags.latest")?.Value<string>();
                 if (string.IsNullOrWhiteSpace(latestVersion)) {
                     continue;
@@ -115,7 +115,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
                 return true;
             }
 
-            foreach (var scope in _registry.Scopes) {
+            foreach (string scope in _registry.Scopes) {
                 if (packageName.StartsWith(scope, StringComparison.OrdinalIgnoreCase)) {
                     return true;
                 }

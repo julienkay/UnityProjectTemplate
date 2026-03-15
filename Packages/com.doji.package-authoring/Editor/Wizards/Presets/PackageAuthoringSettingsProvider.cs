@@ -14,7 +14,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
         /// </summary>
         [SettingsProvider]
         public static SettingsProvider CreateProvider() {
-            var provider = new SettingsProvider("Project/Doji/Package Authoring", SettingsScope.Project) {
+            SettingsProvider provider = new SettingsProvider("Project/Doji/Package Authoring", SettingsScope.Project) {
                 guiHandler = _ => DrawSettingsGui(),
                 titleBarGuiHandler = DrawTitleBarGui
             };
@@ -46,8 +46,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
         /// Draws the editable project-wide defaults for package and project scaffolding.
         /// </summary>
         private static void DrawSettingsGui() {
-            var settings = PackageAuthoringProjectSettings.Instance;
-            using var serializedSettings = new SerializedObject(settings);
+            PackageAuthoringProjectSettings settings = PackageAuthoringProjectSettings.Instance;
+            using SerializedObject serializedSettings = new SerializedObject(settings);
             serializedSettings.Update();
 
             EditorGUILayout.Space(8f);
@@ -85,7 +85,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
                 return;
             }
 
-            var settings = PackageAuthoringProjectSettings.Instance;
+            PackageAuthoringProjectSettings settings = PackageAuthoringProjectSettings.Instance;
             settings.CopyFrom(preset);
             settings.SaveSettings();
         }

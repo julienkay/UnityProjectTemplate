@@ -17,26 +17,26 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
         }
 
         public static List<ScopedRegistryDefinition> ReadFromProjectManifest(string manifestPath) {
-            var registries = new List<ScopedRegistryDefinition>();
+            List<ScopedRegistryDefinition> registries = new List<ScopedRegistryDefinition>();
             if (!File.Exists(manifestPath)) {
                 return registries;
             }
 
-            var root = JObject.Parse(File.ReadAllText(manifestPath));
+            JObject root = JObject.Parse(File.ReadAllText(manifestPath));
             if (root["scopedRegistries"] is not JArray scopedRegistriesToken) {
                 return registries;
             }
 
-            foreach (var registryToken in scopedRegistriesToken) {
+            foreach (JToken registryToken in scopedRegistriesToken) {
                 string name = registryToken.Value<string>("name");
                 string url = registryToken.Value<string>("url");
                 if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(url)) {
                     continue;
                 }
 
-                var scopes = new List<string>();
+                List<string> scopes = new List<string>();
                 if (registryToken["scopes"] is JArray scopesToken) {
-                    foreach (var scopeToken in scopesToken) {
+                    foreach (JToken scopeToken in scopesToken) {
                         string scope = scopeToken.Value<string>();
                         if (!string.IsNullOrWhiteSpace(scope)) {
                             scopes.Add(scope);

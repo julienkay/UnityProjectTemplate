@@ -35,11 +35,7 @@ MonoBehaviour:
     <CreateEditorFolder>k__BackingField: 0
     <CreateTestsFolder>k__BackingField: 0
     <Dependencies>k__BackingField:
-      <Items>k__BackingField:
-      - <PackageName>k__BackingField: dfdf sf s
-        <Version>k__BackingField: 
-      - <PackageName>k__BackingField: d
-        <Version>k__BackingField: 
+      <Items>k__BackingField: []
   <RepoDefaults>k__BackingField:
     <CopyrightHolder>k__BackingField: Your Name
     <LicenseType>k__BackingField: 0

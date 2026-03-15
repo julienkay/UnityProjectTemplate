@@ -16,16 +16,31 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         private static readonly string IncludeAuthorField = $"<{nameof(PackageSettings.IncludeAuthor)}>k__BackingField";
         private static readonly string AuthorUrlField = $"<{nameof(PackageSettings.AuthorUrl)}>k__BackingField";
         private static readonly string AuthorEmailField = $"<{nameof(PackageSettings.AuthorEmail)}>k__BackingField";
+
         private static readonly string IncludeMinimumUnityVersionField =
             $"<{nameof(PackageSettings.IncludeMinimumUnityVersion)}>k__BackingField";
-        private static readonly string MinimumUnityMajorField = $"<{nameof(PackageSettings.MinimumUnityMajor)}>k__BackingField";
-        private static readonly string MinimumUnityMinorField = $"<{nameof(PackageSettings.MinimumUnityMinor)}>k__BackingField";
+
+        private static readonly string MinimumUnityMajorField =
+            $"<{nameof(PackageSettings.MinimumUnityMajor)}>k__BackingField";
+
+        private static readonly string MinimumUnityMinorField =
+            $"<{nameof(PackageSettings.MinimumUnityMinor)}>k__BackingField";
+
         private static readonly string MinimumUnityReleaseField =
             $"<{nameof(PackageSettings.MinimumUnityRelease)}>k__BackingField";
-        private static readonly string CreateDocsFolderField = $"<{nameof(PackageSettings.CreateDocsFolder)}>k__BackingField";
-        private static readonly string CreateSamplesFolderField = $"<{nameof(PackageSettings.CreateSamplesFolder)}>k__BackingField";
-        private static readonly string CreateEditorFolderField = $"<{nameof(PackageSettings.CreateEditorFolder)}>k__BackingField";
-        private static readonly string CreateTestsFolderField = $"<{nameof(PackageSettings.CreateTestsFolder)}>k__BackingField";
+
+        private static readonly string CreateDocsFolderField =
+            $"<{nameof(PackageSettings.CreateDocsFolder)}>k__BackingField";
+
+        private static readonly string CreateSamplesFolderField =
+            $"<{nameof(PackageSettings.CreateSamplesFolder)}>k__BackingField";
+
+        private static readonly string CreateEditorFolderField =
+            $"<{nameof(PackageSettings.CreateEditorFolder)}>k__BackingField";
+
+        private static readonly string CreateTestsFolderField =
+            $"<{nameof(PackageSettings.CreateTestsFolder)}>k__BackingField";
+
         private static readonly string DependenciesField = $"<{nameof(PackageSettings.Dependencies)}>k__BackingField";
 
         /// <inheritdoc />
@@ -35,7 +50,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
 
         /// <inheritdoc />
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label) {
-            var lineCount = 11;
+            int lineCount = 11;
             if (property.FindPropertyRelative(IncludeAuthorField).boolValue) {
                 lineCount += 2;
             }
@@ -85,10 +100,14 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
                 EditorGUI.indentLevel--;
             }
 
-            DrawField(ref row, property.FindPropertyRelative(CreateDocsFolderField), new GUIContent("Create Documentation Folder"));
-            DrawField(ref row, property.FindPropertyRelative(CreateSamplesFolderField), new GUIContent("Create Samples Folder"));
-            DrawField(ref row, property.FindPropertyRelative(CreateEditorFolderField), new GUIContent("Create Editor Folder"));
-            DrawField(ref row, property.FindPropertyRelative(CreateTestsFolderField), new GUIContent("Create Tests Folder"));
+            DrawField(ref row, property.FindPropertyRelative(CreateDocsFolderField),
+                new GUIContent("Create Documentation Folder"));
+            DrawField(ref row, property.FindPropertyRelative(CreateSamplesFolderField),
+                new GUIContent("Create Samples Folder"));
+            DrawField(ref row, property.FindPropertyRelative(CreateEditorFolderField),
+                new GUIContent("Create Editor Folder"));
+            DrawField(ref row, property.FindPropertyRelative(CreateTestsFolderField),
+                new GUIContent("Create Tests Folder"));
 
             row.y += 8f - EditorGUIUtility.standardVerticalSpacing;
             SerializedProperty dependenciesProperty = property.FindPropertyRelative(DependenciesField);

@@ -13,8 +13,10 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
     /// </summary>
     public class ProjectCreationWizard : EditorWindow {
         private const string ProjectSectionPresetTooltip = "Apply project defaults or a preset asset.";
+
         private static readonly string ProductNameField =
             $"<{nameof(Doji.PackageAuthoring.Editor.Wizards.Models.ProjectSettings.ProductName)}>k__BackingField";
+
         private static readonly string TargetLocationField =
             $"<{nameof(Doji.PackageAuthoring.Editor.Wizards.Models.ProjectSettings.TargetLocation)}>k__BackingField";
 
@@ -183,10 +185,12 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         }
 
         private string PreviewProjectDirectory => Path.Combine(CurrentTargetLocation, CurrentProductName);
+
         private string CurrentProductName => GetSerializedString(
             PackageAuthoringGui.FindProjectDefaultsProperty(_defaultsSerializedObject),
             ProductNameField,
             ProjectSettings.ProductName);
+
         private string CurrentTargetLocation => GetSerializedString(
             PackageAuthoringGui.FindProjectDefaultsProperty(_defaultsSerializedObject),
             TargetLocationField,
@@ -197,7 +201,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         }
 
         private static PackageAuthoringProfile CreateTemporaryProfile() {
-            var profile = CreateInstance<PackageAuthoringProfile>();
+            PackageAuthoringProfile profile = CreateInstance<PackageAuthoringProfile>();
             profile.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSaveInEditor;
             profile.ProjectDefaults = new ProjectSettings {
                 ProductName = "MyPackage"
@@ -244,7 +248,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             _originalProductName = PlayerSettings.productName;
             _originalVersion = PlayerSettings.bundleVersion;
             OriginalIdentifiers.Clear();
-            foreach (var target in NamedTargets) {
+            foreach (NamedBuildTarget target in NamedTargets) {
                 OriginalIdentifiers.Add(PlayerSettings.GetApplicationIdentifier(target));
             }
 
@@ -253,7 +257,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             PlayerSettings.companyName = ProjectSettings.CompanyName;
             PlayerSettings.productName = ProjectSettings.ProductName;
             PlayerSettings.bundleVersion = ProjectSettings.Version;
-            foreach (var target in NamedTargets) {
+            foreach (NamedBuildTarget target in NamedTargets) {
                 PlayerSettings.SetApplicationIdentifier(target,
                     $"com.{ProjectSettings.CompanyName.ToLower().Replace(" ", "")}.{ProjectSettings.ProductName.ToLower()}");
             }
@@ -311,6 +315,5 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
                 File.Copy(sourceFileName, destFileName, overwrite: false);
             }
         }
-
     }
 }

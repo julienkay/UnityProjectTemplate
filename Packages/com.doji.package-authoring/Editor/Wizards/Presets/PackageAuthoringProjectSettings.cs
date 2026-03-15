@@ -34,7 +34,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
         // Returning the same object instance across GUI passes is important because some editor controls
         // cache transient UI state by target object identity rather than purely by property path.
         private static PackageAuthoringProjectSettings GetOrCreateSettings() {
-            var settings = LoadOrCreate();
+            PackageAuthoringProjectSettings settings = LoadOrCreate();
             if (settings.ProjectDefaults == null) {
                 settings.ProjectDefaults = new ProjectSettings {
                     ProductName = "MyPackage"
@@ -47,12 +47,14 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
         }
 
         private static PackageAuthoringProjectSettings LoadOrCreate() {
-            var settings = InternalEditorUtility.LoadSerializedFileAndForget("ProjectSettings/PackageAuthoringProjectSettings.asset");
+            Object[] settings =
+                InternalEditorUtility.LoadSerializedFileAndForget(
+                    "ProjectSettings/PackageAuthoringProjectSettings.asset");
             if (settings.Length > 0 && settings[0] is PackageAuthoringProjectSettings projectSettings) {
                 return projectSettings;
             }
 
-            var created = CreateInstance<PackageAuthoringProjectSettings>();
+            PackageAuthoringProjectSettings created = CreateInstance<PackageAuthoringProjectSettings>();
             created.hideFlags = HideFlags.HideAndDontSave;
             return created;
         }

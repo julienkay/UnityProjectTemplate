@@ -12,8 +12,10 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
     [CustomPropertyDrawer(typeof(PackageDependencyList))]
     internal sealed class PackageDependencyListDrawer : PropertyDrawer {
         private static readonly string ItemsField = $"<{nameof(PackageDependencyList.Items)}>k__BackingField";
+
         private static readonly string DependencyPackageNameField =
             $"<{nameof(PackageDependencyEntry.PackageName)}>k__BackingField";
+
         private static readonly string DependencyVersionField =
             $"<{nameof(PackageDependencyEntry.Version)}>k__BackingField";
 

@@ -137,7 +137,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
             }
 
             float suggestionY = rect.y + lineHeight + spacing;
-            foreach (var packageInfo in matches) {
+            foreach (PackageSearchEntry packageInfo in matches) {
                 Rect buttonRect = new(rect.x + 4, suggestionY, rect.width - 8, lineHeight);
                 if (DrawSuggestionRow(buttonRect, packageInfo)) {
                     packageNameProperty.stringValue = packageInfo.PackageName;
@@ -174,7 +174,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
             float contentHeight = allMatches.Count * (lineHeight + spacing);
             Rect contentRect = new(0, 0, viewRect.width - 16, contentHeight);
 
-            Vector2 scrollPosition = _scrollPositions.TryGetValue(fieldKey, out var currentPosition)
+            Vector2 scrollPosition = _scrollPositions.TryGetValue(fieldKey, out Vector2 currentPosition)
                 ? currentPosition
                 : Vector2.zero;
 
@@ -184,7 +184,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
             scrollPosition = GUI.BeginScrollView(viewRect, scrollPosition, contentRect);
 
             float suggestionY = 0f;
-            foreach (var packageInfo in allMatches) {
+            foreach (PackageSearchEntry packageInfo in allMatches) {
                 Rect buttonRect = new(0, suggestionY, contentRect.width, lineHeight);
                 if (DrawSuggestionRow(buttonRect, packageInfo)) {
                     packageNameProperty.stringValue = packageInfo.PackageName;

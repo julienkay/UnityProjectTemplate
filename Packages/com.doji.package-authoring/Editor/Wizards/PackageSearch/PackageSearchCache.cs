@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using UnityEngine;
 
 namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
     /// <summary>
@@ -10,13 +12,17 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
         private readonly List<IPackageSearchSource> _sources = new();
         private readonly List<PackageSearchEntry> _entries = new();
 
+        /// <summary>
+        /// Process-wide cache shared by the package authoring UI so editor windows, inspectors, and settings
+        /// reuse the same registry queries and converge on one merged result set.
+        /// </summary>
         public static PackageSearchCache Shared { get; } = new();
 
         public event Action Changed;
 
         public bool IsLoading {
             get {
-                foreach (var source in _sources) {
+                foreach (IPackageSearchSource source in _sources) {
                     if (source.IsLoading) {
                         return true;
                     }
@@ -55,11 +61,12 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
             }
         }
 
-        public void Refresh() {
+        private void Refresh() {
+            Debug.Log("Refreshing package indexes...");
             DisposeSources();
             BuildSources();
 
-            foreach (var source in _sources) {
+            foreach (IPackageSearchSource source in _sources) {
                 source.Refresh();
             }
 
@@ -68,24 +75,19 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
         }
 
         public PackageSearchEntry? FindExact(string packageName) {
-            foreach (var entry in _entries) {
-                if (string.Equals(entry.PackageName, packageName, StringComparison.OrdinalIgnoreCase)) {
-                    return entry;
-                }
+            foreach (PackageSearchEntry entry in _entries.Where(entry =>
+                         string.Equals(entry.PackageName, packageName, StringComparison.OrdinalIgnoreCase))) {
+                return entry;
             }
 
             return null;
         }
 
         public List<PackageSearchEntry> GetMatches(string query, int maxResults) {
-            var matches = new List<PackageSearchEntry>();
+            List<PackageSearchEntry> matches = new();
             string trimmedQuery = query?.Trim();
 
-            foreach (var entry in _entries) {
-                if (!PackageMatchesQuery(entry, trimmedQuery)) {
-                    continue;
-                }
-
+            foreach (PackageSearchEntry entry in _entries.Where(entry => PackageMatchesQuery(entry, trimmedQuery))) {
                 matches.Add(entry);
                 if (matches.Count >= maxResults) {
                     break;
@@ -99,11 +101,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
             string trimmedQuery = query?.Trim();
             int matchCount = 0;
 
-            foreach (var entry in _entries) {
-                if (!PackageMatchesQuery(entry, trimmedQuery)) {
-                    continue;
-                }
-
+            foreach (PackageSearchEntry _ in _entries.Where(entry => PackageMatchesQuery(entry, trimmedQuery))) {
                 matchCount++;
                 if (matchCount > currentMatchCount) {
                     return true;
@@ -118,20 +116,20 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
         }
 
         private void BuildSources() {
-            foreach (var registry in ScopedRegistryManifestReader.ReadFromProjectManifest(Path.Combine("Packages",
+            foreach (ScopedRegistryManifestReader.ScopedRegistryDefinition registry in ScopedRegistryManifestReader.ReadFromProjectManifest(Path.Combine("Packages",
                          "manifest.json"))) {
-                var source = new ScopedRegistryPackageSearchSource(registry);
+                ScopedRegistryPackageSearchSource source = new ScopedRegistryPackageSearchSource(registry);
                 source.Changed += HandleSourceChanged;
                 _sources.Add(source);
             }
 
-            var unitySource = new UnityPackageSearchSource();
+            UnityPackageSearchSource unitySource = new UnityPackageSearchSource();
             unitySource.Changed += HandleSourceChanged;
             _sources.Add(unitySource);
         }
 
         private void DisposeSources() {
-            foreach (var source in _sources) {
+            foreach (IPackageSearchSource source in _sources) {
                 source.Changed -= HandleSourceChanged;
                 source.Dispose();
             }
@@ -147,10 +145,10 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
 
         private void RebuildEntries() {
             _entries.Clear();
-            var seenPackageNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            HashSet<string> seenPackageNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (var source in _sources) {
-                foreach (var entry in source.Entries) {
+            foreach (IPackageSearchSource source in _sources) {
+                foreach (PackageSearchEntry entry in source.Entries) {
                     if (!seenPackageNames.Add(entry.PackageName)) {
                         continue;
                     }

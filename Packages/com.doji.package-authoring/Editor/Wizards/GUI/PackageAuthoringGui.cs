@@ -9,10 +9,17 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
     /// Shared IMGUI composition for package authoring profiles and adjacent section-based editor UI.
     /// </summary>
     internal static class PackageAuthoringGui {
-        private static readonly string ProjectDefaultsField = $"<{nameof(PackageAuthoringProfile.ProjectDefaults)}>k__BackingField";
-        private static readonly string PackageDefaultsField = $"<{nameof(PackageAuthoringProfile.PackageDefaults)}>k__BackingField";
-        private static readonly string RepoDefaultsField = $"<{nameof(PackageAuthoringProfile.RepoDefaults)}>k__BackingField";
-        private static readonly string TargetLocationField = $"<{nameof(ProjectSettings.TargetLocation)}>k__BackingField";
+        private static readonly string ProjectDefaultsField =
+            $"<{nameof(PackageAuthoringProfile.ProjectDefaults)}>k__BackingField";
+
+        private static readonly string PackageDefaultsField =
+            $"<{nameof(PackageAuthoringProfile.PackageDefaults)}>k__BackingField";
+
+        private static readonly string RepoDefaultsField =
+            $"<{nameof(PackageAuthoringProfile.RepoDefaults)}>k__BackingField";
+
+        private static readonly string TargetLocationField =
+            $"<{nameof(ProjectSettings.TargetLocation)}>k__BackingField";
 
         /// <summary>
         /// Draws a boxed section with a bold header and body content.
@@ -72,7 +79,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
                 UnityRegistryPackageAutocompleteField.SuggestionOverflowMode.Scroll,
             Action drawHeaderAction = null,
             Action drawFooter = null) {
-            using var _ = PackageSettingsDrawerContext.Push(overflowMode);
+            using IDisposable _ = PackageSettingsDrawerContext.Push(overflowMode);
             DrawSection(title, () => {
                 EditorGUILayout.PropertyField(
                     FindPackageDefaultsProperty(profileObject),
@@ -109,7 +116,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             bool includeTargetLocation = true,
             Action drawHeaderAction = null,
             Action drawFooter = null) {
-            using var _ = ProjectSettingsDrawerContext.Push(productLabel, includeTargetLocation);
+            using IDisposable _ = ProjectSettingsDrawerContext.Push(productLabel, includeTargetLocation);
             DrawSection(title, () => {
                 EditorGUILayout.PropertyField(
                     FindProjectDefaultsProperty(profileObject),
