@@ -18,6 +18,11 @@ namespace Doji.PackageAuthoring.Editor.Utilities {
                 return false;
             }
 
+            if (IsProjectOpen(projectPath)) {
+                UnityEngine.Debug.Log($"Project already appears to be open; skipping auto-open: {projectPath}");
+                return false;
+            }
+
 #if UNITY_EDITOR_OSX
             return TryOpenProjectOnMac(projectPath);
 #elif UNITY_EDITOR_WIN
@@ -56,6 +61,14 @@ namespace Doji.PackageAuthoring.Editor.Utilities {
 
             UnityEngine.Debug.Log($"Opening project in Unity: {projectPath}");
             return true;
+        }
+
+        /// <summary>
+        /// Uses Unity's per-project lock file as a best-effort signal that the target project is already open.
+        /// </summary>
+        private static bool IsProjectOpen(string projectPath) {
+            string lockFilePath = Path.Combine(projectPath, "Temp", "UnityLockfile");
+            return File.Exists(lockFilePath);
         }
 
         /// <summary>
