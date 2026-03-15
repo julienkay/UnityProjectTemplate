@@ -37,6 +37,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         private string RootDirectory => Path.Combine(_projectSettings.TargetLocation, _packageSettings.PackageName);
         private string PackageDirectory => Path.Combine(RootDirectory, _packageSettings.PackageName);
         private string ProjectDirectory => Path.Combine(RootDirectory, "projects", _projectSettings.ProductName);
+        private string _runtimeAssemblyGuid;
 
         [SerializeField] private ReorderableList _dependenciesList;
         private UnityRegistryPackageAutocompleteField _dependencyAutocompleteField;
@@ -691,25 +692,28 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// <summary>
         /// Creates the runtime assembly definition in the provided folder.
         /// </summary>
-        private void CreateRuntimeAsmDef(string path) {
+        /// <returns>GUID written into the runtime asmdef meta file.</returns>
+        private string CreateRuntimeAsmDef(string path) {
             string asmDefPath = Path.Combine(path, $"{_packageSettings.AssemblyName}.asmdef");
-            CreateFile(asmDefPath, GetRuntimeAsmDef());
+            return CreateAsmDefWithMeta(asmDefPath, GetRuntimeAsmDef());
         }
 
         /// <summary>
         /// Creates the samples assembly definition in the provided folder.
         /// </summary>
-        private void CreateSamplesAsmDef(string path) {
+        /// <param name="runtimeAssemblyGuid">GUID of the generated runtime asmdef used for stable references.</param>
+        private void CreateSamplesAsmDef(string path, string runtimeAssemblyGuid) {
             string asmDefPath = Path.Combine(path, $"{_packageSettings.AssemblyName}.asmdef");
-            CreateFile(asmDefPath, GetSamplesAsmDef());
+            CreateAsmDefWithMeta(asmDefPath, GetSamplesAsmDef(runtimeAssemblyGuid));
         }
 
         /// <summary>
         /// Creates the editor-only assembly definition in the provided folder.
         /// </summary>
-        private void CreateEditorAsmDef(string path) {
+        /// <param name="runtimeAssemblyGuid">GUID of the generated runtime asmdef used for stable references.</param>
+        private void CreateEditorAsmDef(string path, string runtimeAssemblyGuid) {
             string asmDefPath = Path.Combine(path, $"{_packageSettings.AssemblyName}.Editor.asmdef");
-            CreateFile(asmDefPath, GetEditorAsmDef());
+            CreateAsmDefWithMeta(asmDefPath, GetEditorAsmDef(runtimeAssemblyGuid));
         }
 
         /// <summary>
@@ -726,7 +730,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         private void CreateRuntimeFolder() {
             string runtimePath = Path.Combine(PackageDirectory, "Runtime");
             Directory.CreateDirectory(runtimePath);
-            CreateRuntimeAsmDef(runtimePath);
+            string runtimeAssemblyGuid = CreateRuntimeAsmDef(runtimePath);
+            _runtimeAssemblyGuid = runtimeAssemblyGuid;
             CreateAssemblyInfo(runtimePath);
         }
 
@@ -736,7 +741,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         private void CreateEditorFolder() {
             string editorPath = Path.Combine(PackageDirectory, "Editor");
             Directory.CreateDirectory(editorPath);
-            CreateEditorAsmDef(editorPath);
+            CreateEditorAsmDef(editorPath, _runtimeAssemblyGuid);
         }
 
         /// <summary>
@@ -748,7 +753,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
 
             Directory.CreateDirectory(Path.Combine(samplesPath, "00-SharedSampleAssets"));
             Directory.CreateDirectory(Path.Combine(samplesPath, "01-BasicSample"));
-            CreateSamplesAsmDef(samplesPath);
+            CreateSamplesAsmDef(samplesPath, _runtimeAssemblyGuid);
 
             // Keep the starter sample in a numbered folder so package manager ordering is predictable.
             CreateFile(Path.Combine(samplesPath, "01-BasicSample", "BasicSample.cs"), GetSampleScript());
@@ -808,6 +813,17 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             }
 
             File.WriteAllText(path, content);
+        }
+
+        /// <summary>
+        /// Creates an asmdef asset together with a matching meta file so dependent assemblies can reference its GUID.
+        /// </summary>
+        /// <returns>GUID written into the generated asmdef meta file.</returns>
+        private string CreateAsmDefWithMeta(string asmDefPath, string content) {
+            string guid = Guid.NewGuid().ToString("N");
+            CreateFile(asmDefPath, content, overwrite: true);
+            CreateFile($"{asmDefPath}.meta", AssetMetaTemplate.GetAsmDefMeta(guid), overwrite: true);
+            return guid;
         }
 
         private void CopyFile(string sourceFileName, string destFileName) {

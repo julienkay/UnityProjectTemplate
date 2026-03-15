@@ -23,13 +23,14 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// <summary>
         /// Builds the samples asmdef JSON for the generated package.
         /// </summary>
-        public string GetSamplesAsmDef() {
-            // TODO: ideally we'd need to add a reference to the Runtime asmdef here, but the GUID is not known
-            // until the project is first opened to generate the .meta file
+        /// <param name="runtimeAssemblyGuid">GUID of the generated runtime asmdef used for stable references.</param>
+        public string GetSamplesAsmDef(string runtimeAssemblyGuid) {
             return $@"{{
     ""name"": ""{_packageSettings.AssemblyName}.Samples"",
     ""rootNamespace"": ""{_packageSettings.NamespaceName}.Samples"",
-    ""references"": [],
+    ""references"": [
+        ""GUID:{runtimeAssemblyGuid}""
+    ],
     ""includePlatforms"": [],
     ""excludePlatforms"": [],
     ""allowUnsafeCode"": false,
@@ -45,12 +46,13 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// <summary>
         /// Builds the editor-only asmdef JSON for the generated package.
         /// </summary>
-        public string GetEditorAsmDef() {
+        /// <param name="runtimeAssemblyGuid">GUID of the generated runtime asmdef used for stable references.</param>
+        public string GetEditorAsmDef(string runtimeAssemblyGuid) {
             return $@"{{
     ""name"": ""{_packageSettings.AssemblyName}.Editor"",
     ""rootNamespace"": ""{_packageSettings.NamespaceName}.Editor"",
     ""references"": [
-        ""{_packageSettings.AssemblyName}""
+        ""GUID:{runtimeAssemblyGuid}""
     ],
     ""includePlatforms"": [
         ""Editor""
