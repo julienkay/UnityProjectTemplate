@@ -29,10 +29,9 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
 
         private readonly Action _requestRepaint;
         private readonly PackageSearchCache _cache;
-        private readonly SuggestionOverflowMode _overflowMode;
-
-        private string _activeFieldKey;
         private readonly Dictionary<string, Vector2> _scrollPositions = new();
+        private SuggestionOverflowMode _overflowMode;
+
         private static readonly Color BadgeTextColor = new(1f, 1f, 1f, 0.98f);
         private static GUIStyle _badgeLabelStyle;
 
@@ -46,16 +45,24 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
             _cache.Changed += HandleCacheChanged;
         }
 
+        public void SetOverflowMode(SuggestionOverflowMode overflowMode) {
+            _overflowMode = overflowMode;
+        }
+
         public void Dispose() {
             _cache.Changed -= HandleCacheChanged;
         }
 
-        public float GetHeight(string fieldKey, string packageName) {
+        /// <summary>
+        /// Calculates the exact vertical space later consumed by <see cref="Draw"/>.
+        /// Callers must pass the same visibility decision to both methods.
+        /// </summary>
+        public float GetHeight(string fieldKey, string packageName, bool shouldShowSuggestions) {
             float lineHeight = EditorGUIUtility.singleLineHeight;
             float spacing = EditorGUIUtility.standardVerticalSpacing;
             float height = lineHeight;
 
-            if (!ShouldShowSuggestions(fieldKey, packageName)) {
+            if (!shouldShowSuggestions) {
                 return height + spacing;
             }
 
@@ -80,11 +87,16 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
             return height + spacing + suggestionsHeight;
         }
 
+        /// <summary>
+        /// Draws a dependency row and, when requested by the host, its suggestion UI.
+        /// The caller owns the visibility predicate so list layout stays deterministic across IMGUI hosts.
+        /// </summary>
         public void Draw(
             Rect rect,
             string fieldKey,
             SerializedProperty packageNameProperty,
-            SerializedProperty versionProperty) {
+            SerializedProperty versionProperty,
+            bool shouldShowSuggestions) {
             _cache.EnsureLoaded();
 
             float spacing = EditorGUIUtility.standardVerticalSpacing;
@@ -94,21 +106,15 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
             Rect packageRect = new(rect.x + 4, rect.y, width / 3 * 2 - 2, lineHeight);
             Rect versionRect = new(rect.x + 4 + width / 3 * 2, rect.y, width / 3 - 4, lineHeight);
 
-            string controlName = GetPackageControlName(fieldKey);
-            GUI.SetNextControlName(controlName);
             string newPackageName = EditorGUI.TextField(packageRect, packageNameProperty.stringValue);
             if (newPackageName != packageNameProperty.stringValue) {
                 packageNameProperty.stringValue = newPackageName;
-                _activeFieldKey = fieldKey;
                 TryApplySuggestedVersion(packageNameProperty, versionProperty);
-            }
-            else if (GUI.GetNameOfFocusedControl() == controlName) {
-                _activeFieldKey = fieldKey;
             }
 
             versionProperty.stringValue = EditorGUI.TextField(versionRect, versionProperty.stringValue);
 
-            if (!ShouldShowSuggestions(fieldKey, packageNameProperty.stringValue)) {
+            if (!shouldShowSuggestions) {
                 return;
             }
 
@@ -139,7 +145,6 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
                         versionProperty.stringValue = packageInfo.Version;
                     }
 
-                    _activeFieldKey = null;
                     GUI.FocusControl(null);
                 }
 
@@ -152,20 +157,6 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
             }
         }
 
-        private bool ShouldShowSuggestions(string fieldKey, string packageName) {
-            return _activeFieldKey == fieldKey
-                   && IsPackageFieldFocused(fieldKey)
-                   && !string.IsNullOrWhiteSpace(packageName);
-        }
-
-        private static string GetPackageControlName(string fieldKey) {
-            return $"{fieldKey}.package";
-        }
-
-        private static bool IsPackageFieldFocused(string fieldKey) {
-            return GUI.GetNameOfFocusedControl() == GetPackageControlName(fieldKey);
-        }
-
         private void DrawScrollableSuggestions(
             Rect rect,
             string fieldKey,
@@ -173,6 +164,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
             float spacing,
             SerializedProperty packageNameProperty,
             SerializedProperty versionProperty) {
+            // The scroll view only works reliably because its reserved height was already accounted
+            // for by GetHeight using the same shouldShowSuggestions predicate and overflow mode.
             List<PackageSearchEntry> allMatches =
                 _cache.GetMatches(packageNameProperty.stringValue, int.MaxValue);
 
@@ -185,6 +178,9 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
                 ? currentPosition
                 : Vector2.zero;
 
+            // SettingsProvider hosts an outer scroll view that can consume wheel events before this nested
+            // IMGUI scroll view sees them. Claim the wheel here so the inner suggestion list remains usable.
+            scrollPosition = HandleScrollWheel(viewRect, scrollPosition, contentHeight - viewportHeight);
             scrollPosition = GUI.BeginScrollView(viewRect, scrollPosition, contentRect);
 
             float suggestionY = 0f;
@@ -196,7 +192,6 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
                         versionProperty.stringValue = packageInfo.Version;
                     }
 
-                    _activeFieldKey = null;
                     GUI.FocusControl(null);
                 }
 
@@ -205,6 +200,23 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
 
             GUI.EndScrollView();
             _scrollPositions[fieldKey] = scrollPosition;
+        }
+
+        private static Vector2 HandleScrollWheel(Rect viewRect, Vector2 scrollPosition, float maxScrollY) {
+            Event currentEvent = Event.current;
+            if (currentEvent.type != EventType.ScrollWheel || !viewRect.Contains(currentEvent.mousePosition)) {
+                return scrollPosition;
+            }
+
+            if (maxScrollY <= 0f) {
+                currentEvent.Use();
+                return scrollPosition;
+            }
+
+            scrollPosition.y = Mathf.Clamp(scrollPosition.y + (currentEvent.delta.y * 12f), 0f, maxScrollY);
+            currentEvent.Use();
+            GUI.changed = true;
+            return scrollPosition;
         }
 
         private static bool DrawSuggestionRow(Rect rect, PackageSearchEntry packageInfo) {

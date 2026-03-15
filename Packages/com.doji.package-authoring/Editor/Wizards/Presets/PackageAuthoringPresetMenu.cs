@@ -20,7 +20,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
         public static void Show(
             Rect buttonRect,
             Action applyProjectDefaults,
-            Action<PackageAuthoringDefaults> applyPreset,
+            Action<PackageAuthoringProfile> applyPreset,
             bool includeProjectDefaults = true) {
             var menu = new GenericMenu();
             if (includeProjectDefaults) {
@@ -28,13 +28,13 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
                 menu.AddSeparator(string.Empty);
             }
 
-            List<PackageAuthoringDefaults> presets = FindPresets();
+            List<PackageAuthoringProfile> presets = FindPresets();
             if (presets.Count == 0) {
                 menu.AddDisabledItem(new GUIContent("Presets/No Presets Found"));
             }
             else {
-                foreach (PackageAuthoringDefaults preset in presets) {
-                    PackageAuthoringDefaults capturedPreset = preset;
+                foreach (PackageAuthoringProfile preset in presets) {
+                    PackageAuthoringProfile capturedPreset = preset;
                     menu.AddItem(
                         new GUIContent($"Presets/{capturedPreset.name}"),
                         false,
@@ -48,11 +48,11 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
         /// <summary>
         /// All preset assets available in the current Unity project.
         /// </summary>
-        private static List<PackageAuthoringDefaults> FindPresets() {
-            return AssetDatabase.FindAssets("t:PackageAuthoringDefaults")
+        private static List<PackageAuthoringProfile> FindPresets() {
+            return AssetDatabase.FindAssets("t:PackageAuthoringProfile")
                 .Select(AssetDatabase.GUIDToAssetPath)
                 .Where(path => !string.IsNullOrWhiteSpace(path))
-                .Select(AssetDatabase.LoadAssetAtPath<PackageAuthoringDefaults>)
+                .Select(AssetDatabase.LoadAssetAtPath<PackageAuthoringProfile>)
                 .Where(preset => preset != null)
                 .OrderBy(preset => preset.name, StringComparer.OrdinalIgnoreCase)
                 .ToList();

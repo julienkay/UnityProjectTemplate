@@ -1,17 +1,12 @@
 using System;
 using UnityEditor;
 using UnityEngine;
-using Doji.PackageAuthoring.Editor.Wizards.Models;
 
 namespace Doji.PackageAuthoring.Editor.Wizards {
     /// <summary>
-    /// Shared IMGUI layout helpers for the creation wizards and settings page.
+    /// Shared IMGUI section chrome used by the creation wizards, settings page, and preset inspector.
     /// </summary>
     internal static class CreationWizardLayout {
-        private static readonly GUIContent LicenseTypeLabel = EditorGUIUtility.TrTextContent(
-            "License Type",
-            "Controls the generated license template.");
-
         /// <summary>
         /// Draws a boxed section with a bold header and body content.
         /// </summary>
@@ -51,73 +46,6 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
                     GUILayout.Height(20f))) {
                 onPresetClicked?.Invoke(GUILayoutUtility.GetLastRect());
             }
-        }
-
-        /// <summary>
-        /// Common project identity fields shared by the project and package wizards.
-        /// </summary>
-        public static void DrawProjectIdentityFields(
-            ProjectSettings projectSettings,
-            string productLabel = "Product Name") {
-            projectSettings.CompanyName = EditorGUILayout.TextField("Company Name", projectSettings.CompanyName);
-            projectSettings.ProductName = EditorGUILayout.TextField(productLabel, projectSettings.ProductName);
-            projectSettings.Version = EditorGUILayout.TextField("Version", projectSettings.Version);
-        }
-
-        /// <summary>
-        /// Core package metadata fields shown in presets, project settings, and the package wizard.
-        /// </summary>
-        public static void DrawPackageSettingsFields(PackageSettings packageSettings) {
-            packageSettings.PackageName = EditorGUILayout.TextField("Identifier", packageSettings.PackageName);
-            packageSettings.AssemblyName = EditorGUILayout.TextField("Assembly Name", packageSettings.AssemblyName);
-            packageSettings.NamespaceName = EditorGUILayout.TextField("Namespace", packageSettings.NamespaceName);
-            packageSettings.Description = EditorGUILayout.TextField("Description", packageSettings.Description);
-            packageSettings.CompanyName = EditorGUILayout.TextField("Company Name", packageSettings.CompanyName);
-            packageSettings.IncludeAuthor =
-                EditorGUILayout.Toggle("Include Author Metadata", packageSettings.IncludeAuthor);
-            if (packageSettings.IncludeAuthor) {
-                EditorGUI.indentLevel++;
-                packageSettings.AuthorUrl = EditorGUILayout.TextField("URL", packageSettings.AuthorUrl);
-                packageSettings.AuthorEmail = EditorGUILayout.TextField("Email", packageSettings.AuthorEmail);
-                EditorGUI.indentLevel--;
-            }
-
-            packageSettings.IncludeMinimumUnityVersion =
-                EditorGUILayout.Toggle("Minimum Unity Version", packageSettings.IncludeMinimumUnityVersion);
-            if (packageSettings.IncludeMinimumUnityVersion) {
-                EditorGUI.indentLevel++;
-                packageSettings.MinimumUnityMajor =
-                    EditorGUILayout.TextField("Major", packageSettings.MinimumUnityMajor);
-                packageSettings.MinimumUnityMinor =
-                    EditorGUILayout.TextField("Minor", packageSettings.MinimumUnityMinor);
-                packageSettings.MinimumUnityRelease =
-                    EditorGUILayout.TextField("Release", packageSettings.MinimumUnityRelease);
-                EditorGUI.indentLevel--;
-            }
-        }
-
-        /// <summary>
-        /// Package-content toggles that control optional folder scaffolding.
-        /// </summary>
-        public static void DrawPackageContentFields(PackageSettings packageSettings) {
-            packageSettings.CreateDocsFolder =
-                EditorGUILayout.Toggle("Create Documentation Folder", packageSettings.CreateDocsFolder);
-            packageSettings.CreateSamplesFolder =
-                EditorGUILayout.Toggle("Create Samples Folder", packageSettings.CreateSamplesFolder);
-            packageSettings.CreateEditorFolder =
-                EditorGUILayout.Toggle("Create Editor Folder", packageSettings.CreateEditorFolder);
-            packageSettings.CreateTestsFolder =
-                EditorGUILayout.Toggle("Create Tests Folder", packageSettings.CreateTestsFolder);
-        }
-
-        /// <summary>
-        /// Repository-level fields shared by package scaffolding defaults and the package wizard.
-        /// </summary>
-        public static void DrawRepoSettingsFields(RepoSettings repoSettings) {
-            repoSettings.CopyrightHolder =
-                EditorGUILayout.TextField("Copyright Holder", repoSettings.CopyrightHolder);
-            repoSettings.LicenseType =
-                (LicenseType)EditorGUILayout.EnumPopup(LicenseTypeLabel, repoSettings.LicenseType);
         }
     }
 }

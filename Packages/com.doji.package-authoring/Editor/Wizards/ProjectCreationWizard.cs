@@ -13,12 +13,15 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
     /// </summary>
     public class ProjectCreationWizard : EditorWindow {
         private const string ProjectSectionPresetTooltip = "Apply project defaults or a preset asset.";
+        private static readonly string ProductNameField =
+            $"<{nameof(Doji.PackageAuthoring.Editor.Wizards.Models.ProjectSettings.ProductName)}>k__BackingField";
+        private static readonly string TargetLocationField =
+            $"<{nameof(Doji.PackageAuthoring.Editor.Wizards.Models.ProjectSettings.TargetLocation)}>k__BackingField";
 
-        [SerializeField] private ProjectSettings _projectSettings = new();
         [SerializeField] private bool _initializedFromDefaults;
-        private bool _autoOpenAfterCreation = true;
+        [SerializeField] private bool _autoOpenAfterCreation = true;
 
-        private string ProjectDirectory => Path.Combine(_projectSettings.TargetLocation, _projectSettings.ProductName);
+        private string ProjectDirectory => Path.Combine(ProjectSettings.TargetLocation, ProjectSettings.ProductName);
 
         private static string _originalCompanyName;
         private static string _originalProductName;
@@ -31,6 +34,13 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         };
 
         private static string _originalRootNamespace;
+        private PackageAuthoringProfile _defaults;
+        private SerializedObject _defaultsSerializedObject;
+        private SerializedObject _windowSerializedObject;
+        private SerializedProperty _autoOpenAfterCreationProperty;
+
+        private PackageAuthoringProfile Defaults => _defaults ??= CreateTemporaryProfile();
+        private ProjectSettings ProjectSettings => Defaults.ProjectDefaults;
 
         [MenuItem("Tools/Project Creation Wizard")]
         public static void ShowWindow() {
@@ -43,26 +53,43 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         private void OnEnable() {
             titleContent = new GUIContent("Project Creation");
 
-            if (_initializedFromDefaults) {
-                return;
+            if (!_initializedFromDefaults) {
+                ApplyProjectDefaults();
+                _initializedFromDefaults = true;
             }
 
-            ApplyProjectDefaults();
-            _initializedFromDefaults = true;
+            InitializeSerializedState();
+        }
+
+        private void OnDisable() {
+            if (_defaults != null) {
+                DestroyImmediate(_defaults);
+                _defaults = null;
+            }
+
+            _defaultsSerializedObject = null;
+            _windowSerializedObject = null;
+            _autoOpenAfterCreationProperty = null;
         }
 
         /// <summary>
         /// Draws the standalone project wizard UI.
         /// </summary>
         private void OnGUI() {
+            if (_defaultsSerializedObject == null || _windowSerializedObject == null) {
+                InitializeSerializedState();
+            }
+
+            _defaultsSerializedObject.Update();
+            _windowSerializedObject.Update();
             GUILayout.Space(10);
-            CreationWizardLayout.DrawSection(
-                "Project Settings",
-                DrawProjectSettingsSection,
-                () => CreationWizardLayout.DrawSectionHeaderPresetButton(ProjectSectionPresetTooltip, ShowPresetMenu));
+            DrawProjectSettingsSection();
 
             GUILayout.Space(8f);
             CreationWizardLayout.DrawSection("Output", DrawOutputSection);
+
+            _defaultsSerializedObject.ApplyModifiedProperties();
+            _windowSerializedObject.ApplyModifiedProperties();
 
             GUILayout.Space(10f);
             if (GUILayout.Button("Create Project")) {
@@ -74,19 +101,19 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// Resets the current in-window state from the project-wide defaults.
         /// </summary>
         private void ApplyProjectDefaults() {
-            _projectSettings.CopyFrom(PackageAuthoringProjectSettings.instance.ProjectDefaults);
+            Defaults.CopyFrom(PackageAuthoringProjectSettings.Instance);
         }
 
         /// <summary>
         /// Applies only the project-facing portion of a preset to the current ad hoc window state.
         /// </summary>
-        private void ApplyPreset(PackageAuthoringDefaults preset) {
+        private void ApplyPreset(PackageAuthoringProfile preset) {
             if (preset == null) {
                 ApplyProjectDefaults();
                 return;
             }
 
-            _projectSettings.CopyFrom(preset.ProjectDefaults);
+            Defaults.CopyFrom(preset);
         }
 
         /// <summary>
@@ -95,16 +122,29 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         private void ApplyProjectDefaultsAndRefresh() {
             ApplyProjectDefaults();
             GUI.FocusControl(null);
+            _defaultsSerializedObject?.Update();
+            _windowSerializedObject?.Update();
             Repaint();
         }
 
         /// <summary>
         /// Applies the selected preset and repaints the window.
         /// </summary>
-        private void ApplyPresetAndRefresh(PackageAuthoringDefaults preset) {
+        private void ApplyPresetAndRefresh(PackageAuthoringProfile preset) {
             ApplyPreset(preset);
             GUI.FocusControl(null);
+            _defaultsSerializedObject?.Update();
+            _windowSerializedObject?.Update();
             Repaint();
+        }
+
+        /// <summary>
+        /// Rebuilds cached serialized properties after domain reloads or window recreation.
+        /// </summary>
+        private void InitializeSerializedState() {
+            _defaultsSerializedObject = new SerializedObject(Defaults);
+            _windowSerializedObject = new SerializedObject(this);
+            _autoOpenAfterCreationProperty = _windowSerializedObject.FindProperty(nameof(_autoOpenAfterCreation));
         }
 
         /// <summary>
@@ -121,17 +161,50 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// Draws editable project identity fields specific to standalone project creation.
         /// </summary>
         private void DrawProjectSettingsSection() {
-            CreationWizardLayout.DrawProjectIdentityFields(_projectSettings, productLabel: "Project Name");
-            _autoOpenAfterCreation = EditorGUILayout.Toggle("Auto-Open After Creation", _autoOpenAfterCreation);
+            PackageAuthoringProfileGui.DrawProjectSettingsSection(
+                _defaultsSerializedObject,
+                "Project Settings",
+                productLabel: "Project Name",
+                includeTargetLocation: false,
+                drawHeaderAction: () => CreationWizardLayout.DrawSectionHeaderPresetButton(
+                    ProjectSectionPresetTooltip,
+                    ShowPresetMenu),
+                drawFooter: () => EditorGUILayout.PropertyField(
+                    _autoOpenAfterCreationProperty,
+                    new GUIContent("Auto-Open After Creation")));
         }
 
         /// <summary>
         /// Draws the destination fields and resolved output folder preview.
         /// </summary>
         private void DrawOutputSection() {
-            _projectSettings.TargetLocation =
-                EditorGUILayout.TextField("Target Location", _projectSettings.TargetLocation);
-            EditorGUILayout.LabelField("Project Folder", ProjectDirectory, EditorStyles.miniLabel);
+            PackageAuthoringProfileGui.DrawProjectOutputField(_defaultsSerializedObject);
+            EditorGUILayout.LabelField("Project Folder", PreviewProjectDirectory, EditorStyles.miniLabel);
+        }
+
+        private string PreviewProjectDirectory => Path.Combine(CurrentTargetLocation, CurrentProductName);
+        private string CurrentProductName => GetSerializedString(
+            PackageAuthoringProfileGui.FindProjectDefaultsProperty(_defaultsSerializedObject),
+            ProductNameField,
+            ProjectSettings.ProductName);
+        private string CurrentTargetLocation => GetSerializedString(
+            PackageAuthoringProfileGui.FindProjectDefaultsProperty(_defaultsSerializedObject),
+            TargetLocationField,
+            ProjectSettings.TargetLocation);
+
+        private static string GetSerializedString(SerializedProperty property, string relativePath, string fallback) {
+            return property?.FindPropertyRelative(relativePath)?.stringValue ?? fallback;
+        }
+
+        private static PackageAuthoringProfile CreateTemporaryProfile() {
+            var profile = CreateInstance<PackageAuthoringProfile>();
+            profile.hideFlags = HideFlags.HideInHierarchy | HideFlags.DontSaveInEditor;
+            profile.ProjectDefaults = new ProjectSettings {
+                ProductName = "MyPackage"
+            };
+            profile.PackageDefaults = new PackageSettings();
+            profile.RepoDefaults = new RepoSettings();
+            return profile;
         }
 
         /// <summary>
@@ -177,15 +250,15 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
 
             _originalRootNamespace = EditorSettings.projectGenerationRootNamespace;
 
-            PlayerSettings.companyName = _projectSettings.CompanyName;
-            PlayerSettings.productName = _projectSettings.ProductName;
-            PlayerSettings.bundleVersion = _projectSettings.Version;
+            PlayerSettings.companyName = ProjectSettings.CompanyName;
+            PlayerSettings.productName = ProjectSettings.ProductName;
+            PlayerSettings.bundleVersion = ProjectSettings.Version;
             foreach (var target in NamedTargets) {
                 PlayerSettings.SetApplicationIdentifier(target,
-                    $"com.{_projectSettings.CompanyName.ToLower().Replace(" ", "")}.{_projectSettings.ProductName.ToLower()}");
+                    $"com.{ProjectSettings.CompanyName.ToLower().Replace(" ", "")}.{ProjectSettings.ProductName.ToLower()}");
             }
 
-            EditorSettings.projectGenerationRootNamespace = _projectSettings.ProductName;
+            EditorSettings.projectGenerationRootNamespace = ProjectSettings.ProductName;
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

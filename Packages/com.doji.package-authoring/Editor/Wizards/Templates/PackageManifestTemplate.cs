@@ -62,7 +62,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Templates {
         private static JObject GetDependencies(PackageContext ctx) {
             JObject obj = new JObject();
 
-            foreach (PackageDependencyEntry dep in (ctx.Package.Dependencies ?? Enumerable.Empty<PackageDependencyEntry>())
+            foreach (PackageDependencyEntry dep in (ctx.Package.Dependencies?.Items ?? Enumerable.Empty<PackageDependencyEntry>())
                      .OrderBy(d => d.PackageName)) {
                 obj[dep.PackageName] = dep.Version;
             }

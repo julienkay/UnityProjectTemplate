@@ -1,15 +1,14 @@
 using UnityEditor;
 using UnityEngine;
-using Doji.PackageAuthoring.Editor.Wizards.Models;
 using Doji.PackageAuthoring.Editor.Wizards;
+using Doji.PackageAuthoring.Editor.Wizards.Models;
+using Doji.PackageAuthoring.Editor.Wizards.PackageSearch;
 
 namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
     /// <summary>
     /// Registers and renders the Project Settings page for package authoring defaults.
     /// </summary>
     internal static class PackageAuthoringSettingsProvider {
-        private static readonly string DependenciesField = $"<{nameof(PackageSettings.Dependencies)}>k__BackingField";
-
         /// <summary>
         /// Creates the settings provider shown under <c>Project/Doji/Package Authoring</c>.
         /// </summary>
@@ -47,34 +46,26 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
         /// Draws the editable project-wide defaults for package and project scaffolding.
         /// </summary>
         private static void DrawSettingsGui() {
-            var settings = PackageAuthoringProjectSettings.instance;
+            var settings = PackageAuthoringProjectSettings.Instance;
             using var serializedSettings = new SerializedObject(settings);
-            SerializedProperty packageDefaultsProperty = serializedSettings.FindProperty("packageDefaults");
-            SerializedProperty packageDependenciesProperty =
-                packageDefaultsProperty.FindPropertyRelative(DependenciesField);
             serializedSettings.Update();
 
             EditorGUILayout.Space(8f);
             EditorGUI.BeginChangeCheck();
-            CreationWizardLayout.DrawSection("Package Defaults", () => {
-                CreationWizardLayout.DrawPackageSettingsFields(settings.PackageDefaults);
-                EditorGUILayout.Space(6f);
-                CreationWizardLayout.DrawPackageContentFields(settings.PackageDefaults);
-                EditorGUILayout.Space(6f);
-                EditorGUILayout.PropertyField(packageDependenciesProperty, includeChildren: true);
-            });
+            PackageAuthoringProfileGui.DrawPackageSettingsSection(
+                serializedSettings,
+                "Package Defaults",
+                overflowMode: UnityRegistryPackageAutocompleteField.SuggestionOverflowMode.Scroll);
 
             EditorGUILayout.Space(8f);
-            CreationWizardLayout.DrawSection("Repo Defaults", () => {
-                CreationWizardLayout.DrawRepoSettingsFields(settings.RepoDefaults);
-            });
+            PackageAuthoringProfileGui.DrawRepoSettingsSection(serializedSettings, "Repo Defaults");
 
             EditorGUILayout.Space(8f);
-            CreationWizardLayout.DrawSection("Project Defaults", () => {
-                CreationWizardLayout.DrawProjectIdentityFields(settings.ProjectDefaults, productLabel: "Project Name");
-                settings.ProjectDefaults.TargetLocation =
-                    EditorGUILayout.TextField("Target Location", settings.ProjectDefaults.TargetLocation);
-            });
+            PackageAuthoringProfileGui.DrawProjectSettingsSection(
+                serializedSettings,
+                "Project Defaults",
+                productLabel: "Project Name",
+                includeTargetLocation: true);
 
             if (EditorGUI.EndChangeCheck()) {
                 serializedSettings.ApplyModifiedProperties();
@@ -89,15 +80,13 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Presets {
         /// Copies the selected preset asset into the current project-wide defaults.
         /// </summary>
         /// <param name="preset">The preset asset selected from the title-bar menu.</param>
-        private static void ApplyPresetToProjectDefaults(PackageAuthoringDefaults preset) {
+        private static void ApplyPresetToProjectDefaults(PackageAuthoringProfile preset) {
             if (preset == null) {
                 return;
             }
 
-            var settings = PackageAuthoringProjectSettings.instance;
-            settings.ProjectDefaults.CopyFrom(preset.ProjectDefaults);
-            settings.PackageDefaults.CopyFrom(preset.PackageDefaults);
-            settings.RepoDefaults.CopyFrom(preset.RepoDefaults);
+            var settings = PackageAuthoringProjectSettings.Instance;
+            settings.CopyFrom(preset);
             settings.SaveSettings();
         }
     }

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Doji.PackageAuthoring.Editor.Wizards.Models {
@@ -105,10 +104,10 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Models {
         public bool CreateTestsFolder { get; set; }
 
         /// <summary>
-        /// Gets the dependency entries written into the generated package manifest.
+        /// Serialized dependency entries written into the generated package manifest.
         /// </summary>
         [field: SerializeField]
-        public List<PackageDependencyEntry> Dependencies { get; set; } = new();
+        public PackageDependencyList Dependencies { get; set; } = new();
 
         /// <summary>
         /// Copies all package-facing values from another settings instance, including dependency entries.
@@ -136,16 +135,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards.Models {
             CreateEditorFolder = other.CreateEditorFolder;
             CreateTestsFolder = other.CreateTestsFolder;
 
-            Dependencies = new List<PackageDependencyEntry>(other.Dependencies?.Count ?? 0);
-            if (other.Dependencies == null) {
-                return;
-            }
-
-            foreach (var dependency in other.Dependencies) {
-                var clone = new PackageDependencyEntry();
-                clone.CopyFrom(dependency);
-                Dependencies.Add(clone);
-            }
+            Dependencies ??= new PackageDependencyList();
+            Dependencies.CopyFrom(other.Dependencies);
         }
     }
 }
