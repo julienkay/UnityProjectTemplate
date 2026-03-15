@@ -10,6 +10,8 @@ using Doji.PackageAuthoring.Editor.Utilities;
 using Doji.PackageAuthoring.Editor.Wizards.Models;
 using Doji.PackageAuthoring.Editor.Wizards.PackageSearch;
 using Doji.PackageAuthoring.Editor.Wizards.Presets;
+using Process = System.Diagnostics.Process;
+using ProcessStartInfo = System.Diagnostics.ProcessStartInfo;
 
 namespace Doji.PackageAuthoring.Editor.Wizards {
     /// <summary>
@@ -33,6 +35,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         [SerializeField] private RepoScaffoldSettings _repoSettings = new();
         [SerializeField] private bool _initializedFromDefaults;
         [SerializeField] private Vector2 _structurePreviewScrollPosition;
+        [SerializeField] private bool _autoOpenAfterCreation = true;
 
         private string RootDirectory => Path.Combine(_projectSettings.TargetLocation, _packageSettings.PackageName);
         private string PackageDirectory => Path.Combine(RootDirectory, _packageSettings.PackageName);
@@ -327,6 +330,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
         /// </summary>
         private void DrawCompanionProjectSection() {
             CreationWizardLayout.DrawProjectIdentityFields(_projectSettings, productLabel: "Project Name");
+            _autoOpenAfterCreation = EditorGUILayout.Toggle("Auto-Open After Creation", _autoOpenAfterCreation);
             EditorGUILayout.HelpBox(
                 "These values are applied to the generated companion Unity project and shared where the package uses the same product metadata.",
                 MessageType.None);
@@ -540,6 +544,10 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
             GitUtility.InitializeRepository(RootDirectory, _packageSettings.PackageName);
 
             Debug.Log($"Package scaffolding created successfully at {RootDirectory}");
+
+            if (_autoOpenAfterCreation) {
+                OpenProjectInUnity(ProjectDirectory);
+            }
         }
 
         /// <summary>
@@ -687,6 +695,25 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
                 string destSubDir = Path.Combine(destinationDir, Path.GetFileName(subDir));
                 CopyDirectory(subDir, destSubDir);
             }
+        }
+
+        /// <summary>
+        /// Opens the generated companion project in the currently running Unity editor.
+        /// </summary>
+        private void OpenProjectInUnity(string projectPath) {
+            string editorPath = EditorApplication.applicationPath;
+            if (!File.Exists(editorPath)) {
+                Debug.LogError("Could not locate Unity Editor executable to open new project.");
+                return;
+            }
+
+            Process.Start(new ProcessStartInfo {
+                FileName = editorPath,
+                Arguments = $"-projectPath \"{projectPath}\"",
+                UseShellExecute = false
+            });
+
+            Debug.Log($"Opening project in Unity: {projectPath}");
         }
 
         /// <summary>
