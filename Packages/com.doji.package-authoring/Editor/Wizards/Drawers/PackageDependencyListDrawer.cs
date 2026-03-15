@@ -140,7 +140,18 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
                 // Height calculation and row drawing must use the same stable predicate or the
                 // ReorderableList can reserve one height during Layout and draw another during Repaint.
                 // The selected row index is stable enough as long as the backing target object is stable too.
-                return index == DependenciesList.index && !string.IsNullOrWhiteSpace(packageNameProperty.stringValue);
+                if (index != DependenciesList.index) {
+                    return false;
+                }
+
+                string packageName = packageNameProperty.stringValue?.Trim();
+                if (string.IsNullOrWhiteSpace(packageName)) {
+                    return false;
+                }
+
+                // Once the current value already resolves to a known package, keep the row compact
+                // until the user changes it again instead of permanently pinning the suggestion list open.
+                return !PackageSearchCache.Shared.FindExact(packageName).HasValue;
             }
         }
     }
