@@ -61,6 +61,7 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
                         packageInfo.version,
                         string.IsNullOrWhiteSpace(packageInfo.displayName) ? packageInfo.name : packageInfo.displayName,
                         packageInfo.description,
+                        packageInfo.keywords,
                         "Unity"));
                 }
 

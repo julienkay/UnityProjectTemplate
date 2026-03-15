@@ -167,15 +167,30 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
                 return true;
             }
 
+            // Matching stays focused on the fields users are most likely to search intentionally.
             return ContainsIgnoreCase(entry.PackageName, query)
                    || ContainsIgnoreCase(entry.DisplayName, query)
-                   || ContainsIgnoreCase(entry.Description, query)
+                   || ContainsIgnoreCase(entry.Keywords, query)
                    || ContainsIgnoreCase(entry.SourceName, query);
         }
 
         private static bool ContainsIgnoreCase(string value, string query) {
             return !string.IsNullOrEmpty(value)
                    && value.IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private static bool ContainsIgnoreCase(IEnumerable<string> values, string query) {
+            if (values == null) {
+                return false;
+            }
+
+            foreach (string value in values) {
+                if (ContainsIgnoreCase(value, query)) {
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

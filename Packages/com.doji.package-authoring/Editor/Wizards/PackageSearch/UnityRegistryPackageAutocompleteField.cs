@@ -66,6 +66,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
                 return height + spacing;
             }
 
+            _cache.EnsureLoaded();
+
             if (_cache.IsLoading && !_cache.HasPackages) {
                 return height + spacing + lineHeight + spacing;
             }
@@ -97,8 +99,6 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
             SerializedProperty packageNameProperty,
             SerializedProperty versionProperty,
             bool shouldShowSuggestions) {
-            _cache.EnsureLoaded();
-
             float spacing = EditorGUIUtility.standardVerticalSpacing;
             float lineHeight = EditorGUIUtility.singleLineHeight;
             float width = rect.width;
@@ -117,6 +117,8 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
             if (!shouldShowSuggestions) {
                 return;
             }
+
+            _cache.EnsureLoaded();
 
             if (_cache.IsLoading && !_cache.HasPackages) {
                 Rect statusRect = new(rect.x + 4, rect.y + lineHeight + spacing, rect.width - 8, lineHeight);

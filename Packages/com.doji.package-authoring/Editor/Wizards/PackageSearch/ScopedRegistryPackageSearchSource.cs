@@ -100,14 +100,36 @@ namespace Doji.PackageAuthoring.Editor.Wizards.PackageSearch {
                 string description =
                     packageToken.SelectToken($"versions['{latestVersion}'].description")?.Value<string>()
                     ?? packageToken.Value<string>("description");
+                string[] keywords = ReadKeywords(packageToken, latestVersion);
 
                 _entries.Add(new PackageSearchEntry(
                     packageName,
                     latestVersion,
                     string.IsNullOrWhiteSpace(displayName) ? packageName : displayName,
                     description,
+                    keywords,
                     _registry.Name));
             }
+        }
+
+        private static string[] ReadKeywords(JObject packageToken, string latestVersion) {
+            JToken keywordsToken = packageToken.SelectToken($"versions['{latestVersion}'].keywords")
+                                   ?? packageToken["keywords"];
+            if (keywordsToken is not JArray keywordsArray || keywordsArray.Count == 0) {
+                return Array.Empty<string>();
+            }
+
+            List<string> keywords = new();
+            foreach (JToken keywordToken in keywordsArray) {
+                string keyword = keywordToken.Value<string>();
+                if (string.IsNullOrWhiteSpace(keyword)) {
+                    continue;
+                }
+
+                keywords.Add(keyword);
+            }
+
+            return keywords.Count == 0 ? Array.Empty<string>() : keywords.ToArray();
         }
 
         private bool MatchesRegistryScopes(string packageName) {

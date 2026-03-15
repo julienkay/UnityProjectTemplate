@@ -68,7 +68,6 @@ namespace Doji.PackageAuthoring.Editor.Wizards {
                 DependencyAutocompleteField = new UnityRegistryPackageAutocompleteField(
                     InternalEditorUtility.RepaintAllViews,
                     overflowMode: UnityRegistryPackageAutocompleteField.SuggestionOverflowMode.Scroll);
-                PackageSearchCache.Shared.EnsureLoaded();
             }
 
             public ReorderableList DependenciesList { get; private set; }
