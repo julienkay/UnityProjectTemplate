@@ -155,7 +155,7 @@
       }
     },
     "tools.doji.package-authoring": {
-      "version": "1.0.3",
+      "version": "1.0.4",
       "depth": 0,
       "source": "registry",
       "dependencies": {
